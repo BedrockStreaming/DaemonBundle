@@ -1,7 +1,3 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: oliviermansour
- * Date: 05/05/2014
- * Time: 09:30
- */ 
+
+$runner->addTestsFromDirectory(__DIR__.'/src/M6Web/Bundle/DaemonBundle/Tests');

@@ -1,0 +1,11 @@
+# Configuration file for Coke, "Enjoy sniffing your code" : https://github.com/M6Web/Coke
+command=phpcs
+
+# Standard used by PHP CodeSniffer (required)
+standard=Cytron
+
+# White list of files and directories (optional)
+src/
+
+# Black list of files and directories
+!Tests

@@ -1,14 +1,12 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: oliviermansour
- * Date: 05/05/2014
- * Time: 11:01
- */
 
 namespace M6Web\Bundle\DaemonBundle\Command;
 
-
-class StopLoopException {
+/**
+ * Class StopLoopException - allow user to interrupt the daemon loop
+ * @package M6Web\Bundle\DaemonBundle\Command
+ */
+class StopLoopException extends \Exception
+{
 
 } 
