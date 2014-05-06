@@ -10,6 +10,7 @@
     ],
     "require": {
         "php": ">=5.4",
+        "ext-pcntl": "*",
         "symfony/console": "~2.0",
         "symfony/dependency-injection": "~2.0"
     },
