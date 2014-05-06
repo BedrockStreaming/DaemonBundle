@@ -1,7 +1,7 @@
 
+--run-once
 --loop-max
 --memory-max
-# --no-messages-wait
+--shutdown-on-exceptions
 
 
-inspired from https://github.com/mac-cain13/daemonizable-command

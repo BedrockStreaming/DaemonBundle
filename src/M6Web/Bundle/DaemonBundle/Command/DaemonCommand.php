@@ -55,6 +55,11 @@ abstract class DaemonCommand extends Command
     public function daemon(InputInterface $input, OutputInterface $output)
     {
 
+        // options
+        $shutdownOnExceptions = (bool) $input->getOption('shutdown-on-exceptions');
+        $runOnce              = (bool) $input->getOption('run-once');
+        $runMax               = (int) $input->getOption('run-max');
+
         $this->setup($input, $output);
         // TODO : fire an event
 
@@ -65,28 +70,30 @@ abstract class DaemonCommand extends Command
                 $this->execute($input, $output);
             } catch (StopLoopException $e) {
                 // TODO : fire an event
-                $this->returnCode = 1;
+                $this->returnCode = $e->getCode();
                 $this->requestShutdown();
             } catch (\Exception $e) {
-                if ((bool) $input->getOption('shutdown-on-exceptions')) {
+                if ($shutdownOnExceptions) {
                     // TODO : fire an event
-                    $this->returnCode = 2;
+                    $this->returnCode = 2; // with code ?
                     $this->requestShutdown();
                 }
 
             }
 
             // Request shutdown if we only should run once
-            if ( true === (bool) $input->getOption('run-once') ) {
+            if ( true ===  $runOnce) {
                 // TODO : fire an event
                 $this->requestShutdown();
             }
 
             // count loop
-            if ($this->incrLoopCount() >= (int) $input->getOption('run-max')) {
+            if ($this->incrLoopCount() >= $runMax) {
                 // TODO : fire an event
                 $this->requestShutdown();
             }
+
+            // test memory
 
         } while ($this->isShutdownRequested());
 
