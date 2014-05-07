@@ -16,20 +16,51 @@ use Symfony\Component\Console\Input\InputOption;
  */
 abstract class DaemonCommand extends Command
 {
-
-
-    protected $shutdownRequested = false; // tell if shutdown is requested
-    protected $returnCode        = 0;     // allow the concrete command to setup an exit code
+    /**
+     * Tells if shutdown is requested
+     *
+     * @var boolean
+     */
+    protected $shutdownRequested = false;
 
     /**
+     * Alows the concrete command to
+     * setup an exit code
+     *
+     * @var integer
+     */
+    protected $returnCode = 0;
+
+    /**
+     * Loop count
+     *
      * @var int
      */
-    protected $loopCount = 0;     // loop count
+    protected $loopCount = 0;
 
     /**
-     * @param null $name
+     * Store max loop option value
      *
-     * @see Symfony\Component\Console\Command\Command::__construct()
+     * @var integer
+     */
+    protected $loopMax;
+
+    /**
+     * Store max memory option value
+     *
+     * @var integer
+     */
+    protected $memoryMax;
+
+    /**
+     * Store shutdown on exception option value
+     *
+     * @var boolean
+     */
+    protected $shutdownOnException;
+
+    /**
+     * {@inheritdoc}
      */
     public function __construct($name = null)
     {
@@ -42,7 +73,6 @@ abstract class DaemonCommand extends Command
         parent::setCode(array($this, 'daemon'));
     }
 
-
     /**
      * The daemon loop
      *
@@ -50,15 +80,17 @@ abstract class DaemonCommand extends Command
      * @param OutputInterface $output
      *
      * @return integer The command exit code
-     *
      */
     public function daemon(InputInterface $input, OutputInterface $output)
     {
-
         // options
-        $shutdownOnExceptions = (bool) $input->getOption('shutdown-on-exceptions');
-        $runOnce              = (bool) $input->getOption('run-once');
-        $runMax               = (int) $input->getOption('run-max');
+        $this->shutdownOnExceptions = (bool) $input->getOption('shutdown-on-exceptions');
+
+        if ((bool) $input->getOption('run-once')) {
+            $this->loopMax = 1;
+        } else {
+            $this->loopMax = (int) $input->getOption('loop-max');
+        }
 
         $this->setup($input, $output);
         // TODO : fire an event
@@ -120,7 +152,7 @@ abstract class DaemonCommand extends Command
         // Merge our options
         $this->addOption('run-once', null, InputOption::VALUE_NONE, 'Run the command just once');
         $this->addOption('run-max', null, InputOption::VALUE_OPTIONAL, 'Run the command x time');
-        $this->addOption('shutdown-on-exceptions', null, InputOption::VALUE_NONE, 'Ask for shutdown if an exeption is throw');
+        $this->addOption('shutdown-on-exceptions', null, InputOption::VALUE_NONE, 'Ask for shutdown if an exeption is thrown');
 
         //$this->addOption('detect-leaks', null, InputOption::VALUE_NONE, 'Output information about memory usage');
 
