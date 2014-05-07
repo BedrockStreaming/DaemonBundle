@@ -11,12 +11,11 @@
     "require": {
         "php": ">=5.4",
         "ext-pcntl": "*",
-        "symfony/console": "~2.0",
-        "symfony/dependency-injection": "~2.0"
+        "symfony/console": "~2.3",
+        "symfony/dependency-injection": "~2.3"
     },
     "require-dev": {
-        "atoum/atoum":     "master-dev",
-        "symfony/console": "~2.3"
+        "atoum/atoum":     "master-dev"
     },
     "autoload": {
         "psr-0": { "": "src/" }
