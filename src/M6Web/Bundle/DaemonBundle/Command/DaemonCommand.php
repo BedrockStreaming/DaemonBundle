@@ -46,7 +46,7 @@ abstract class DaemonCommand extends ContainerAwareCommand
      *
      * @var integer
      */
-    protected $loopMax;
+    protected $loopMax = 1;
 
     /**
      * Store max memory option value
@@ -126,7 +126,10 @@ abstract class DaemonCommand extends ContainerAwareCommand
                     $this->requestShutdown();
                 }
             }
-        } while ($this->isLastLoop());
+
+            $this->incrLoopCount();
+
+        } while (!$this->isLastLoop());
         $this->dispatchEvent(DaemonEvents::DAEMON_LOOP_END);
 
         // Prepare for shutdown
@@ -276,7 +279,7 @@ abstract class DaemonCommand extends ContainerAwareCommand
      */
     protected function dispatchEvent($eventName)
     {
-        $this->getContainer()->get('dispatcher')->dispatch($eventName, new DaemonEvent($this));
+        $this->getContainer()->get('event_dispatcher')->dispatch($eventName, new DaemonEvent($this));
 
         return $this;
     }
@@ -289,7 +292,7 @@ abstract class DaemonCommand extends ContainerAwareCommand
     protected function isLastLoop()
     {
         // count loop
-        if ($this->incrLoopCount() >= $this->loopMax) {
+        if ($this->loopCount >= $this->loopMax) {
             $this->requestShutdown();
         }
 
