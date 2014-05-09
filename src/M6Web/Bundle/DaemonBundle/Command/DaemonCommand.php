@@ -2,11 +2,14 @@
 
 namespace M6Web\Bundle\DaemonBundle\Command;
 
-use Symfony\Component\Console\Command\Command;
+use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Output\NullOutput;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use M6Web\Bundle\DaemonBundle\Event\DaemonEvent;
+use M6Web\Bundle\DaemonBundle\DaemonEvents;
 
 /**
  * Class DaemonCommand
@@ -14,7 +17,7 @@ use Symfony\Component\Console\Input\InputOption;
  *
  * @package M6Web\Bundle\DaemonBundle\Command
  */
-abstract class DaemonCommand extends Command
+abstract class DaemonCommand extends ContainerAwareCommand
 {
     /**
      * Tells if shutdown is requested
@@ -60,6 +63,11 @@ abstract class DaemonCommand extends Command
     protected $shutdownOnException;
 
     /**
+     * @var EventDispatcherInterface
+     */
+    protected $dispatcher = null;
+
+    /**
      * {@inheritdoc}
      */
     public function __construct($name = null)
@@ -83,6 +91,8 @@ abstract class DaemonCommand extends Command
      */
     public function daemon(InputInterface $input, OutputInterface $output)
     {
+        $this->dispatchEvent(DaemonEvents::DAEMON_START);
+
         // options
         $this->shutdownOnExceptions = (bool) $input->getOption('shutdown-on-exceptions');
 
@@ -92,46 +102,36 @@ abstract class DaemonCommand extends Command
             $this->loopMax = (int) $input->getOption('loop-max');
         }
 
+        // Setup
+        $this->dispatchEvent(DaemonEvents::DAEMON_SETUP);
         $this->setup($input, $output);
-        // TODO : fire an event
 
+
+        // General loop
+        $this->dispatchEvent(DaemonEvents::DAEMON_LOOP_BEGIN);
         do {
-
-            // execute the inside loop code
+            // Execute the inside loop code
             try {
                 $this->execute($input, $output);
             } catch (StopLoopException $e) {
-                // TODO : fire an event
+                $this->dispatchEvent(DaemonEvents::DAEMON_LOOP_EXCEPTION_STOP);
+
                 $this->returnCode = $e->getCode();
                 $this->requestShutdown();
             } catch (\Exception $e) {
-                if ($shutdownOnExceptions) {
-                    // TODO : fire an event
+                if ($this->getShutdownOnException()) {
+                    $this->dispatchEvent(DaemonEvents::DAEMON_LOOP_EXCEPTION_GENERAL);
+
                     $this->returnCode = 2; // with code ?
                     $this->requestShutdown();
                 }
-
             }
-
-            // Request shutdown if we only should run once
-            if ( true ===  $runOnce) {
-                // TODO : fire an event
-                $this->requestShutdown();
-            }
-
-            // count loop
-            if ($this->incrLoopCount() >= $runMax) {
-                // TODO : fire an event
-                $this->requestShutdown();
-            }
-
-            // test memory
-
-        } while ($this->isShutdownRequested());
+        } while ($this->isLastLoop());
+        $this->dispatchEvent(DaemonEvents::DAEMON_LOOP_END);
 
         // Prepare for shutdown
         $this->tearDown($input, $output);
-        // TODO : fire an event
+        $this->dispatchEvent(DaemonEvents::DAEMON_STOP);
 
         return $this->returnCode;
     }
@@ -239,12 +239,67 @@ abstract class DaemonCommand extends Command
         return $this->loopCount++;
     }
 
+    /**
+     * @return int
+     */
+    public function getLoopMax()
+    {
+        return $this->loopMax;
+    }
+
+    /**
+     * @return int
+     */
+    public function getShutdownOnException()
+    {
+        return $this->shutdownOnException;
+    }
+
+    /**
+     * @param EventDispatcher $dispatcher
+     *
+     * @return DaemonCommand
+     */
+    public function setEventDispatcher(EventDispatcherInterface $dispatcher)
+    {
+        $this->dispatcher = $dispatcher;
+
+        return this;
+    }
+
+    /**
+     * Dispatch a daemon event
+     *
+     * @param string $eventName
+     *
+     * @return boolean
+     */
+    protected function dispatchEvent($eventName)
+    {
+        $this->getContainer()->get('dispatcher')->dispatch($eventName, new DaemonEvent($this));
+
+        return $this;
+    }
+
+    /**
+     * Return true after the last loop
+     *
+     * @return boolean
+     */
+    protected function isLastLoop()
+    {
+        // count loop
+        if ($this->incrLoopCount() >= $this->loopMax) {
+            $this->requestShutdown();
+        }
+
+        return $this->isShutdownRequested();
+    }
 
     protected function setup(InputInterface $input, OutputInterface $output)
     {
 
     }
-
 
     protected function tearDown(InputInterface $input, OutputInterface $output)
     {
