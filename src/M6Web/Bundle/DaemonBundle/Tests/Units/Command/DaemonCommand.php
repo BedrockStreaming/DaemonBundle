@@ -4,18 +4,29 @@ namespace M6Web\Bundle\DaemonBundle\Tests\Units\Command;
 
 use mageekguy\atoum\test;
 use Symfony\Component\Console\Application;
-//use Symfony\Component\Console\Tester\CommandTester;
+use Symfony\Component\Console\Tester\CommandTester;
+use M6Web\Bundle\DaemonBundle\DaemonEvents;
 
 class DaemonCommand extends test
 {
 
-    protected function getCommand()
+    protected function getCommand($eventDispatcher = null)
+    {
+        $command = $this->getApplication()->find('test:daemontest');
+
+        if (!is_null($eventDispatcher)) {
+            $command->setEventDispatcher($eventDispatcher);
+        }
+
+        return $command;
+    }
+
+    protected function getApplication()
     {
         $application = new Application();
         $application->add(new DaemonCommandConcrete());
 
-        return $application->find('test:daemontest');
-
+        return $application;
     }
 
     public function testLoopCount()
@@ -46,6 +57,60 @@ class DaemonCommand extends test
             ->then()
             ->boolean($command->isShutdownRequested())
             ->isEqualTo(true);
+    }
+
+    /**
+     * @tags events
+     */
+    public function testRunOnce()
+    {
+        $eventDispatcher = new \mock\Symfony\Component\EventDispatcher\EventDispatcher();
+        $eventDispatcher->getMockController()->dispatch = function() { return true; };
+        $command = $this->getCommand($eventDispatcher);
+
+        $this->if($commandTester = new CommandTester($command))
+            ->then($commandTester->execute([
+                        'command' => $command->getName(),
+                        '--run-once' => true
+                    ]))
+            ->mock($eventDispatcher)
+                ->call('dispatch')
+                    ->withArguments(DaemonEvents::DAEMON_SETUP)->once()
+                    ->withArguments(DaemonEvents::DAEMON_LOOP_BEGIN)->once()
+                    ->withArguments(DaemonEvents::DAEMON_LOOP_ITERATION)->once()
+                    ->withArguments(DaemonEvents::DAEMON_LOOP_END)->once()
+                    ->withArguments(DaemonEvents::DAEMON_STOP)->once();
+    }
+
+    /**
+     * @tags events
+     */
+    public function testMaxLoop()
+    {
+        $eventDispatcher = new \mock\Symfony\Component\EventDispatcher\EventDispatcher();
+        $eventDispatcher->getMockController()->dispatch = function() { return true; };
+        $command = $this->getCommand($eventDispatcher);
+
+        $this->if($commandTester = new CommandTester($command))
+            ->then($commandTester->execute([
+                        'command' => $command->getName(),
+                        '--run-max' => 7
+                    ]))
+            ->mock($eventDispatcher)
+            ->call('dispatch')
+            ->withArguments(DaemonEvents::DAEMON_LOOP_ITERATION)->exactly(7);
+
+        $eventDispatcher = new \mock\Symfony\Component\EventDispatcher\EventDispatcher();
+        $eventDispatcher->getMockController()->dispatch = function() { return true; };
+        $command = $this->getCommand($eventDispatcher);
+        $this->if($commandTester = new CommandTester($command))
+            ->then($commandTester->execute([
+                        'command' => $command->getName(),
+                        '--run-max' => 1
+                    ]))
+            ->mock($eventDispatcher)
+            ->call('dispatch')
+            ->withArguments(DaemonEvents::DAEMON_LOOP_ITERATION)->exactly(1);
     }
 
 } 
