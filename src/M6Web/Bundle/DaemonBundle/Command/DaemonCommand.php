@@ -94,12 +94,12 @@ abstract class DaemonCommand extends ContainerAwareCommand
         $this->dispatchEvent(DaemonEvents::DAEMON_START);
 
         // options
-        $this->shutdownOnExceptions = (bool) $input->getOption('shutdown-on-exceptions');
+        $this->setShutdownOnExceptions($input->getOption('shutdown-on-exceptions'));
 
         if ((bool) $input->getOption('run-once')) {
-            $this->loopMax = 1;
+            $this->setLoopMax(1);
         } else {
-            $this->loopMax = (int) $input->getOption('run-max');
+            $this->setLoopMax($input->getOption('run-max'));
         }
 
         // Setup
@@ -251,11 +251,31 @@ abstract class DaemonCommand extends ContainerAwareCommand
     }
 
     /**
+     * @param int $v value
+     */
+    public function setLoopMax($v)
+    {
+        $this->loopMax = (int) $v;
+    }
+
+    /**
      * @return int
      */
     public function getShutdownOnException()
     {
         return $this->shutdownOnException;
+    }
+
+    /**
+     * @param bool $v value
+     *
+     * @return $this
+     */
+    public function setShutdownOnExceptions($v)
+    {
+        $this->shutdownOnException = (bool) $v;
+
+        return $this;
     }
 
     /**
@@ -271,6 +291,21 @@ abstract class DaemonCommand extends ContainerAwareCommand
     }
 
     /**
+     * get the EventDispatcher
+     *
+     * @return object|EventDispatcherInterface
+     */
+    public function getEventDispatcher()
+    {
+        if (!is_null($this->dispatcher)) {
+
+            return $this->dispatcher;
+        }
+
+        return $this->getContainer()->get('event_dispatcher');
+    }
+
+    /**
      * Dispatch a daemon event
      *
      * @param string $eventName
@@ -279,7 +314,7 @@ abstract class DaemonCommand extends ContainerAwareCommand
      */
     protected function dispatchEvent($eventName)
     {
-        $this->getContainer()->get('event_dispatcher')->dispatch($eventName, new DaemonEvent($this));
+        $this->getEventDispatcher()->dispatch($eventName, new DaemonEvent($this));
 
         return $this;
     }
