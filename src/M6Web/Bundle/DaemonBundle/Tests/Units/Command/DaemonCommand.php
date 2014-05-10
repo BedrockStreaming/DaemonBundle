@@ -2,11 +2,9 @@
 
 namespace M6Web\Bundle\DaemonBundle\Tests\Units\Command;
 
-require_once __DIR__.'/../../../../../../../vendor/autoload.php';
-
 use mageekguy\atoum\test;
 use Symfony\Component\Console\Application;
-use Symfony\Component\Console\Tester\CommandTester;
+//use Symfony\Component\Console\Tester\CommandTester;
 
 class DaemonCommand extends test
 {
@@ -18,8 +16,6 @@ class DaemonCommand extends test
 
         return $application->find('test:daemontest');
 
-//        $commandTester = new CommandTester($command);
-//        $commandTester->execute(array('command' => $command->getName()));
     }
 
     public function testLoopCount()
