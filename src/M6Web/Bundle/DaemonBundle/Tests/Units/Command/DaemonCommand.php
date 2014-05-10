@@ -10,23 +10,17 @@ use M6Web\Bundle\DaemonBundle\DaemonEvents;
 class DaemonCommand extends test
 {
 
-    protected function getCommand($eventDispatcher = null)
+    protected function getCommand($eventDispatcher = null, $commandClass = 'M6Web\Bundle\DaemonBundle\Tests\Units\Command\DaemonCommandConcrete')
     {
-        $command = $this->getApplication()->find('test:daemontest');
+        $application = new Application();
+        $application->add(new $commandClass());
+        $command = $application->find('test:daemontest');
 
         if (!is_null($eventDispatcher)) {
             $command->setEventDispatcher($eventDispatcher);
         }
 
         return $command;
-    }
-
-    protected function getApplication()
-    {
-        $application = new Application();
-        $application->add(new DaemonCommandConcrete());
-
-        return $application;
     }
 
     public function testLoopCount()
@@ -111,6 +105,24 @@ class DaemonCommand extends test
             ->mock($eventDispatcher)
             ->call('dispatch')
             ->withArguments(DaemonEvents::DAEMON_LOOP_ITERATION)->exactly(1);
+    }
+
+    /**
+     * @tags exception
+     */
+    public function testStopLoopException()
+    {
+        $eventDispatcher = new \mock\Symfony\Component\EventDispatcher\EventDispatcher();
+        $eventDispatcher->getMockController()->dispatch = function() { return true; };
+        $command = $this->getCommand($eventDispatcher, 'M6Web\Bundle\DaemonBundle\Tests\Units\Command\DaemonCommandConcreteThrowException');
+        $this->if($commandTester = new CommandTester($command))
+            ->then($commandTester->execute([
+                        'command' => $command->getName(),
+                        '--shutdown-on-exceptions' => true
+                    ]))
+            ->mock($eventDispatcher)
+            ->call('dispatch')
+            ->withArguments(DaemonEvents::DAEMON_LOOP_ITERATION)->exactly(DaemonCommandConcreteThrowException::MAX_ITERATION);
     }
 
 } 
