@@ -128,6 +128,7 @@ abstract class DaemonCommand extends ContainerAwareCommand
             }
 
             $this->incrLoopCount();
+            $this->dispatchEvent(DaemonEvents::DAEMON_LOOP_ITERATION);
 
         } while (!$this->isLastLoop());
         $this->dispatchEvent(DaemonEvents::DAEMON_LOOP_END);
