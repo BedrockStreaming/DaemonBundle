@@ -259,7 +259,7 @@ abstract class DaemonCommand extends ContainerAwareCommand
     }
 
     /**
-     * @param EventDispatcher $dispatcher
+     * @param \M6Web\Bundle\DaemonBundle\Command\EventDispatcher|\Symfony\Component\EventDispatcher\EventDispatcherInterface $dispatcher
      *
      * @return DaemonCommand
      */
@@ -267,7 +267,7 @@ abstract class DaemonCommand extends ContainerAwareCommand
     {
         $this->dispatcher = $dispatcher;
 
-        return this;
+        return $this;
     }
 
     /**
