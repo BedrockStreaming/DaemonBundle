@@ -15,13 +15,16 @@ class DaemonEvent extends Event
      */
     protected $command;
 
+    /**
+     * @param DaemonCommand $command
+     */
     public function __construct(DaemonCommand $command)
     {
         $this->command = $command;
     }
 
     /**
-     * return DaemonCommand
+     * @return DaemonCommand
      */
     public function getCommand()
     {
