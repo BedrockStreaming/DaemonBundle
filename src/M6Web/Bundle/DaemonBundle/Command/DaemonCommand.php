@@ -45,7 +45,7 @@ abstract class DaemonCommand extends ContainerAwareCommand
      *
      * @var integer
      */
-    protected $loopMax = 1;
+    protected $loopMax = null;
 
     /**
      * Store max memory option value
@@ -98,7 +98,9 @@ abstract class DaemonCommand extends ContainerAwareCommand
         if ((bool) $input->getOption('run-once')) {
             $this->setLoopMax(1);
         } else {
-            $this->setLoopMax($input->getOption('run-max'));
+            if (!is_null($input->getOption('run-max'))) {
+                $this->setLoopMax($input->getOption('run-max'));
+            }
         }
 
         // Setup
@@ -327,7 +329,7 @@ abstract class DaemonCommand extends ContainerAwareCommand
     protected function isLastLoop()
     {
         // count loop
-        if ($this->loopCount >= $this->loopMax) {
+        if (!is_null($this->getLoopMax()) && ($this->getLoopCount() >= $this->getLoopMax())) {
             $this->requestShutdown();
         }
 
