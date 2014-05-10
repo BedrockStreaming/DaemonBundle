@@ -4,7 +4,6 @@ namespace M6Web\Bundle\DaemonBundle\Command;
 
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\Console\Output\NullOutput;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -196,7 +195,7 @@ abstract class DaemonCommand extends ContainerAwareCommand
      * This will finish the current iteration and give the command a chance
      * to cleanup.
      *
-     * @return Command The current instance
+     * @return DaemonCommand The current instance
      */
     public function requestShutdown()
     {
@@ -280,7 +279,7 @@ abstract class DaemonCommand extends ContainerAwareCommand
     }
 
     /**
-     * @param \M6Web\Bundle\DaemonBundle\Command\EventDispatcher|\Symfony\Component\EventDispatcher\EventDispatcherInterface $dispatcher
+     * @param \Symfony\Component\EventDispatcher\EventDispatcherInterface $dispatcher
      *
      * @return DaemonCommand
      */
