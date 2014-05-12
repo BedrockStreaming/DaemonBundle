@@ -18,7 +18,7 @@ class MyDaemonizedCommand extends DaemonCommand
     {
         $this
             ->setName('company:my-daemonized-command')
-            ->setDescription('M6 Voting Worker Status');
+            ->setDescription('My daemonized command');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output)
@@ -32,7 +32,7 @@ class MyDaemonizedCommand extends DaemonCommand
 
 ## Run command
 
-You can run a daemonized command as any other Symfony command. DaemonCommand parent class provide additionals options :
+You can run a daemonized command as any other Symfony command. DaemonCommand parent class provide additional options :
 
 - `--run-once` - Run the command just once
 - `--loop-max` - Run the command x time
