@@ -170,4 +170,43 @@ class DaemonCommand extends test
                 ->hasMessage('Invalid callable provided to Command::setCode.')
         ;
     }
+
+
+    /**
+     * @dataProvider signalProvider
+     */
+    public function testHandleSignal($signal)
+    {
+        $command = $this->getCommand();
+
+        $this
+            ->boolean($command->isShutdownRequested())
+                ->isFalse()
+        ;
+
+        $command->handleSignal($signal);
+
+        $this
+            ->boolean($command->isShutdownRequested())
+                ->isTrue()
+        ;
+    }
+
+    public function signalProvider()
+    {
+        return [SIGINT, SIGTERM];
+    }
+
+    public function testGetSetShutdownOnExceptions()
+    {
+        $command  = $this->getCommand();
+        $shutdown = (bool) rand(0 ,1);
+
+        $command->setShutdownOnExceptions($shutdown);
+
+        $this
+            ->boolean($command->getShutdownOnExceptions())
+                ->isIdenticalTo($shutdown)
+        ;
+    }
 }
