@@ -197,15 +197,15 @@ class DaemonCommand extends test
         return [SIGINT, SIGTERM];
     }
 
-    public function testGetSetShutdownOnExceptions()
+    public function testGetSetShutdownOnException()
     {
         $command  = $this->getCommand();
         $shutdown = (bool) rand(0 ,1);
 
-        $command->setShutdownOnExceptions($shutdown);
+        $command->setShutdownOnException($shutdown);
 
         $this
-            ->boolean($command->getShutdownOnExceptions())
+            ->boolean($command->getShutdownOnException())
                 ->isIdenticalTo($shutdown)
         ;
     }

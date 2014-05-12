@@ -314,7 +314,7 @@ abstract class DaemonCommand extends ContainerAwareCommand
     /**
      * @return int
      */
-    public function getShutdownOnExceptions()
+    public function getShutdownOnException()
     {
         return $this->shutdownOnException;
     }
@@ -324,7 +324,7 @@ abstract class DaemonCommand extends ContainerAwareCommand
      *
      * @return $this
      */
-    public function setShutdownOnExceptions($v)
+    public function setShutdownOnException($v)
     {
         $this->shutdownOnException = (bool) $v;
 
