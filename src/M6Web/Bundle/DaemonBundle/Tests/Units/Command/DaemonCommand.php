@@ -157,4 +157,17 @@ class DaemonCommand extends test
                             ->once()
         ;
     }
+
+    public function testSetCodeException()
+    {
+        $command = $this->getCommand();
+
+        $this
+            ->exception(function() use($command) {
+                $command->setCode(null);
+            })
+                ->isInstanceOf('\InvalidArgumentException')
+                ->hasMessage('Invalid callable provided to Command::setCode.')
+        ;
+    }
 }

@@ -300,8 +300,12 @@ abstract class DaemonCommand extends ContainerAwareCommand
      *
      * @return $this
      */
-    public function setCode(callable $callback)
+    public function setCode($callback)
     {
+        if (!is_callable($callback)) {
+            throw new \InvalidArgumentException('Invalid callable provided to Command::setCode.');
+        }
+
         $this->loopCallback = $callback;
 
         return $this;
