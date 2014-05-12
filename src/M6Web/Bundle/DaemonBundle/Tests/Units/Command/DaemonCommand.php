@@ -125,4 +125,36 @@ class DaemonCommand extends test
             ->withArguments(DaemonEvents::DAEMON_LOOP_ITERATION)->exactly(DaemonCommandConcreteThrowException::MAX_ITERATION);
     }
 
-} 
+    public function testGetSetMaxMemory()
+    {
+        $command = $this->getCommand();
+        $memory  = rand(100, 128000000);
+
+        $command->setMemoryMax($memory);
+
+        $this
+            ->integer($command->getMemoryMax())
+                ->isIdenticalTo($command->getmemorymax())
+        ;
+    }
+
+    public function testMaxMemory()
+    {
+        $eventDispatcher = new \mock\Symfony\Component\EventDispatcher\EventDispatcher();
+        $eventDispatcher->getMockController()->dispatch = function() { return true; };
+
+        $command = $this->getCommand($eventDispatcher, 'M6Web\Bundle\DaemonBundle\Tests\Units\Command\DaemonCommandConcreteMaxMemory');
+
+        $this
+            ->if($commandTester = new CommandTester($command))
+                ->then($commandTester->execute([
+                            'command' => $command->getName(),
+                            '--memory-max' => 10000000
+                        ]))
+                ->mock($eventDispatcher)
+                    ->call('dispatch')
+                        ->withArguments(DaemonEvents::DAEMON_LOOP_MAX_MEMORY_REACHED)
+                            ->once()
+        ;
+    }
+}

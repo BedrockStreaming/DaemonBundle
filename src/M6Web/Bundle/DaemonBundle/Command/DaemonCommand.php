@@ -52,7 +52,7 @@ abstract class DaemonCommand extends ContainerAwareCommand
      *
      * @var integer
      */
-    protected $memoryMax;
+    protected $memoryMax = 0;
 
     /**
      * Store shutdown on exception option value
@@ -67,6 +67,11 @@ abstract class DaemonCommand extends ContainerAwareCommand
     protected $dispatcher = null;
 
     /**
+     * @var Callable
+     */
+    protected $loopCallback;
+
+    /**
      * {@inheritdoc}
      */
     public function __construct($name = null)
@@ -78,6 +83,8 @@ abstract class DaemonCommand extends ContainerAwareCommand
 
         // Set our runloop as the executable code
         parent::setCode(array($this, 'daemon'));
+
+        $this->setCode(array($this, 'execute'));
     }
 
     /**
@@ -94,6 +101,7 @@ abstract class DaemonCommand extends ContainerAwareCommand
 
         // options
         $this->setShutdownOnExceptions($input->getOption('shutdown-on-exceptions'));
+        $this->setMemoryMax($input->getOption('memory-max'));
 
         if ((bool) $input->getOption('run-once')) {
             $this->setLoopMax(1);
@@ -113,7 +121,7 @@ abstract class DaemonCommand extends ContainerAwareCommand
         do {
             // Execute the inside loop code
             try {
-                $this->execute($input, $output);
+                call_user_func($this->loopCallback, $input, $output);
             } catch (StopLoopException $e) {
                 $this->dispatchEvent(DaemonEvents::DAEMON_LOOP_EXCEPTION_STOP);
 
@@ -157,6 +165,7 @@ abstract class DaemonCommand extends ContainerAwareCommand
         // Merge our options
         $this->addOption('run-once', null, InputOption::VALUE_NONE, 'Run the command just once');
         $this->addOption('run-max', null, InputOption::VALUE_OPTIONAL, 'Run the command x time');
+        $this->addOption('memory-max', null, InputOption::VALUE_OPTIONAL, 'Gracefully stop running command when given memory volume, in bytes, is reached', 0);
         $this->addOption('shutdown-on-exceptions', null, InputOption::VALUE_NONE, 'Ask for shutdown if an exeption is thrown');
 
         //$this->addOption('detect-leaks', null, InputOption::VALUE_NONE, 'Output information about memory usage');
@@ -261,6 +270,44 @@ abstract class DaemonCommand extends ContainerAwareCommand
     }
 
     /**
+     * Define memory max option value
+     *
+     * @param integer $memory
+     *
+     * @return $this
+     */
+    public function setMemoryMax($memory)
+    {
+        $this->memoryMax = $memory;
+
+        return $this;
+    }
+
+    /**
+     * Get memory max option value
+     *
+     * @return integer
+     */
+    public function getMemoryMax()
+    {
+        return $this->memoryMax;
+    }
+
+    /**
+     * Define command code callback
+     *
+     * @param callable $callback
+     *
+     * @return $this
+     */
+    public function setCode(callable $callback)
+    {
+        $this->loopCallback = $callback;
+
+        return $this;
+    }
+
+    /**
      * @return int
      */
     public function getShutdownOnException()
@@ -328,8 +375,14 @@ abstract class DaemonCommand extends ContainerAwareCommand
      */
     protected function isLastLoop()
     {
-        // count loop
+        // Count loop
         if (!is_null($this->getLoopMax()) && ($this->getLoopCount() >= $this->getLoopMax())) {
+            $this->requestShutdown();
+        }
+
+        // Memory
+        if ($this->memoryMax > 0 && memory_get_peak_usage(true) >= $this->memoryMax) {
+            $this->dispatchEvent(DaemonEvents::DAEMON_LOOP_MAX_MEMORY_REACHED);
             $this->requestShutdown();
         }
 
