@@ -371,12 +371,11 @@ abstract class DaemonCommand extends ContainerAwareCommand
      */
     public function getEventDispatcher()
     {
-        if (!is_null($this->dispatcher)) {
-
-            return $this->dispatcher;
+        if (is_null($this->dispatcher)) {
+            $this->dispatcher = $this->getContainer()->get('event_dispatcher');
         }
 
-        return $this->getContainer()->get('event_dispatcher');
+        return $this->dispatcher;
     }
 
     /**
