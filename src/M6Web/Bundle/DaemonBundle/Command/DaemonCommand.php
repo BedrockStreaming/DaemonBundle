@@ -318,6 +318,7 @@ abstract class DaemonCommand extends ContainerAwareCommand
      *
      * @param callable $callback
      *
+     * @throws \InvalidArgumentException
      * @return $this
      */
     public function setCode($callback)
