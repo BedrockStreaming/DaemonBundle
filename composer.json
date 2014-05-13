@@ -1,24 +1,25 @@
 {
-    "name": "m6web/daemon-bundle",
-    "type": "symfony-bundle",
+    "name" : "m6web/daemon-bundle",
+    "type" : "symfony-bundle",
     "description" : "bundle sf2 easing creating daemon commands",
-    "authors": [
-        {
-            "name": "Olivier Mansour",
-            "email": "olivier.mansour@m6.fr"
+    "authors" : [{
+            "name" : "Olivier Mansour",
+            "email" : "olivier.mansour@m6.fr"
         }
     ],
-    "require": {
-        "php": ">=5.4",
-        "ext-pcntl": "*",
-        "symfony/console": "~2.3",
-        "symfony/dependency-injection": "~2.3"
+    "require" : {
+        "php" : ">=5.4",
+        "ext-pcntl" : "*",
+        "symfony/console" : "~2.3",
+        "symfony/framework-bundle" : ">=2.3"
     },
-    "require-dev": {
-        "atoum/atoum":     "master-dev"
+    "require-dev" : {
+        "atoum/atoum" : "master-dev"
     },
-    "autoload": {
-        "psr-0": { "": "src/" }
+    "autoload" : {
+        "psr-0" : {
+            "" : "src/"
+        }
     },
     "minimum-stability" : "dev"
 }
