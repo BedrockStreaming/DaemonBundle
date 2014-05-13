@@ -8,7 +8,6 @@ namespace M6Web\Bundle\DaemonBundle;
 final class DaemonEvents
 {
     const DAEMON_START                   = 'daemon.start';
-    const DAEMON_SETUP                   = 'daemon.setup';
     const DAEMON_LOOP_BEGIN              = 'daemon.loop.begin';
     const DAEMON_LOOP_EXCEPTION_STOP     = 'daemon.loop.exception.stop';
     const DAEMON_LOOP_EXCEPTION_GENERAL  = 'daemon.loop.exception.general';

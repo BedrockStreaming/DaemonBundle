@@ -45,7 +45,6 @@ You can run a daemonized command as any other Symfony command. DaemonCommand par
 Daemonized command trigger the following events :
 
 - `DaemonEvents::DAEMON_START`
-- `DaemonEvents::DAEMON_SETUP`
 - `DaemonEvents::DAEMON_LOOP_BEGIN`
 - `DaemonEvents::DAEMON_LOOP_EXCEPTION_STOP`
 - `DaemonEvents::DAEMON_LOOP_EXCEPTION_GENERAL`

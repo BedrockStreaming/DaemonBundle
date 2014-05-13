@@ -125,7 +125,6 @@ abstract class DaemonCommand extends ContainerAwareCommand
         }
 
         // Setup
-        $this->dispatchEvent(DaemonEvents::DAEMON_SETUP);
         $this->setup($input, $output);
 
 
