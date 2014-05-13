@@ -118,7 +118,7 @@ class DaemonCommand extends test
         $this->if($commandTester = new CommandTester($command))
             ->then($commandTester->execute([
                         'command' => $command->getName(),
-                        '--shutdown-on-exceptions' => true
+                        '--shutdown-on-exception' => true
                     ]))
             ->mock($eventDispatcher)
             ->call('dispatch')

@@ -37,7 +37,7 @@ You can run a daemonized command as any other Symfony command. DaemonCommand par
 - `--run-once` - Run the command just once
 - `--loop-max` - Run the command x time
 - `--memory-max` - Gracefully stop running command when given memory volume, in bytes, is reached
-- `--shutdown-on-exceptions` - Ask for shutdown if an exeption is thrown
+- `--shutdown-on-exception` - Ask for shutdown if an exeption is thrown
 
 ## Command events
 

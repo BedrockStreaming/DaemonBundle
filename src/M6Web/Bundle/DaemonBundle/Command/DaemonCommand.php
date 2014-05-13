@@ -100,7 +100,7 @@ abstract class DaemonCommand extends ContainerAwareCommand
         $this->dispatchEvent(DaemonEvents::DAEMON_START);
 
         // options
-        $this->setShutdownOnException($input->getOption('shutdown-on-exceptions'));
+        $this->setShutdownOnException($input->getOption('shutdown-on-exception'));
         $this->setMemoryMax($input->getOption('memory-max'));
 
         if ((bool) $input->getOption('run-once')) {
@@ -166,7 +166,7 @@ abstract class DaemonCommand extends ContainerAwareCommand
         $this->addOption('run-once', null, InputOption::VALUE_NONE, 'Run the command just once');
         $this->addOption('run-max', null, InputOption::VALUE_OPTIONAL, 'Run the command x time');
         $this->addOption('memory-max', null, InputOption::VALUE_OPTIONAL, 'Gracefully stop running command when given memory volume, in bytes, is reached', 0);
-        $this->addOption('shutdown-on-exceptions', null, InputOption::VALUE_NONE, 'Ask for shutdown if an exeption is thrown');
+        $this->addOption('shutdown-on-exception', null, InputOption::VALUE_NONE, 'Ask for shutdown if an exeption is thrown');
 
         //$this->addOption('detect-leaks', null, InputOption::VALUE_NONE, 'Output information about memory usage');
 
