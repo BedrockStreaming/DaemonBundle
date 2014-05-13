@@ -114,15 +114,22 @@ class DaemonCommand extends test
     {
         $eventDispatcher = new \mock\Symfony\Component\EventDispatcher\EventDispatcher();
         $eventDispatcher->getMockController()->dispatch = function() { return true; };
+
         $command = $this->getCommand($eventDispatcher, 'M6Web\Bundle\DaemonBundle\Tests\Units\Command\DaemonCommandConcreteThrowException');
-        $this->if($commandTester = new CommandTester($command))
-            ->then($commandTester->execute([
-                        'command' => $command->getName(),
-                        '--shutdown-on-exception' => true
-                    ]))
-            ->mock($eventDispatcher)
-            ->call('dispatch')
-            ->withArguments(DaemonEvents::DAEMON_LOOP_ITERATION)->exactly(DaemonCommandConcreteThrowException::MAX_ITERATION);
+
+        $this
+            ->if($commandTester = new CommandTester($command))
+                ->then($commandTester->execute([
+                            'command' => $command->getName(),
+                            '--shutdown-on-exception' => true
+                        ]))
+                ->mock($eventDispatcher)
+                    ->call('dispatch')
+                        ->withArguments(DaemonEvents::DAEMON_LOOP_ITERATION)
+                            ->exactly(DaemonCommandConcreteThrowException::MAX_ITERATION)
+                ->object($command->getLastException())
+                    ->isInstanceOf('M6Web\Bundle\DaemonBundle\Command\StopLoopException')
+        ;
     }
 
     public function testGetSetMaxMemory()
