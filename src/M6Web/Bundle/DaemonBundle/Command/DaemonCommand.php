@@ -100,7 +100,7 @@ abstract class DaemonCommand extends ContainerAwareCommand
         $this->dispatchEvent(DaemonEvents::DAEMON_START);
 
         // options
-        $this->setShutdownOnExceptions($input->getOption('shutdown-on-exceptions'));
+        $this->setShutdownOnException($input->getOption('shutdown-on-exceptions'));
         $this->setMemoryMax($input->getOption('memory-max'));
 
         if ((bool) $input->getOption('run-once')) {
