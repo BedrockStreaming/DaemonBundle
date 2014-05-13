@@ -72,6 +72,11 @@ abstract class DaemonCommand extends ContainerAwareCommand
     protected $loopCallback;
 
     /**
+     * @var \Exception
+     */
+    protected $lastException = null;
+
+    /**
      * {@inheritdoc}
      */
     public function __construct($name = null)
@@ -123,12 +128,14 @@ abstract class DaemonCommand extends ContainerAwareCommand
             try {
                 call_user_func($this->loopCallback, $input, $output);
             } catch (StopLoopException $e) {
+                $this->setLastException($e);
                 $this->dispatchEvent(DaemonEvents::DAEMON_LOOP_EXCEPTION_STOP);
 
                 $this->returnCode = $e->getCode();
                 $this->requestShutdown();
             } catch (\Exception $e) {
                 if ($this->getShutdownOnException()) {
+                    $this->setLastException($e);
                     $this->dispatchEvent(DaemonEvents::DAEMON_LOOP_EXCEPTION_GENERAL);
 
                     $this->returnCode = 2; // with code ?
@@ -356,6 +363,29 @@ abstract class DaemonCommand extends ContainerAwareCommand
         }
 
         return $this->getContainer()->get('event_dispatcher');
+    }
+
+    /**
+     * Return the last exception
+     *
+     * @return Exception|null
+     */
+    protected function getLastException()
+    {
+        return $this->lastException;
+    }
+
+    /**
+     * Set the last exception
+     *
+     * @param \Exception $e
+     * @return \M6Web\Bundle\DaemonBundle\Command\DaemonCommand
+     */
+    protected function setLastException(\Exception $e)
+    {
+        $this->lastException = $e;
+
+        return $this;
     }
 
     /**
