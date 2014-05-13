@@ -370,7 +370,7 @@ abstract class DaemonCommand extends ContainerAwareCommand
      *
      * @return Exception|null
      */
-    protected function getLastException()
+    public function getLastException()
     {
         return $this->lastException;
     }
