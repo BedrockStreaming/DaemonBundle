@@ -69,7 +69,6 @@ class DaemonCommand extends test
                     ]))
             ->mock($eventDispatcher)
                 ->call('dispatch')
-                    ->withArguments(DaemonEvents::DAEMON_SETUP)->once()
                     ->withArguments(DaemonEvents::DAEMON_LOOP_BEGIN)->once()
                     ->withArguments(DaemonEvents::DAEMON_LOOP_ITERATION)->once()
                     ->withArguments(DaemonEvents::DAEMON_LOOP_END)->once()
