@@ -115,7 +115,7 @@ class DaemonCommand extends test
         $eventDispatcher = new \mock\Symfony\Component\EventDispatcher\EventDispatcher();
         $eventDispatcher->getMockController()->dispatch = function() { return true; };
 
-        $command = $this->getCommand($eventDispatcher, 'M6Web\Bundle\DaemonBundle\Tests\Units\Command\DaemonCommandConcreteThrowException');
+        $command = $this->getCommand($eventDispatcher, 'M6Web\Bundle\DaemonBundle\Tests\Units\Command\DaemonCommandConcreteThrowStopException');
 
         $this
             ->if($commandTester = new CommandTester($command))
@@ -126,7 +126,7 @@ class DaemonCommand extends test
                 ->mock($eventDispatcher)
                     ->call('dispatch')
                         ->withArguments(DaemonEvents::DAEMON_LOOP_ITERATION)
-                            ->exactly(DaemonCommandConcreteThrowException::MAX_ITERATION)
+                            ->exactly(DaemonCommandConcreteThrowStopException::MAX_ITERATION)
                 ->object($command->getLastException())
                     ->isInstanceOf('M6Web\Bundle\DaemonBundle\Command\StopLoopException')
         ;
@@ -214,6 +214,42 @@ class DaemonCommand extends test
         $this
             ->boolean($command->getShutdownOnException())
                 ->isIdenticalTo($shutdown)
+        ;
+    }
+
+    public function testGetSetShowExceptions()
+    {
+        $command = $this->getCommand();
+        $show    = (bool) rand(0 ,1);
+
+        $command->setShowExceptions($show);
+
+        $this
+            ->boolean($command->getShowExceptions())
+                ->isIdenticalTo($show)
+        ;
+    }
+
+    public function testCommandException()
+    {
+        $eventDispatcher = new \mock\Symfony\Component\EventDispatcher\EventDispatcher();
+        $eventDispatcher->getMockController()->dispatch = function() { return true; };
+
+        $command = $this->getCommand($eventDispatcher, 'M6Web\Bundle\DaemonBundle\Tests\Units\Command\DaemonCommandConcreteThrowException');
+
+        $this
+            ->if($commandTester = new CommandTester($command))
+                ->then($commandTester->execute([
+                            'command' => $command->getName(),
+                            '--shutdown-on-exception' => true,
+                            '--show-exceptions' => true
+                        ]))
+                ->mock($eventDispatcher)
+                    ->call('dispatch')
+                        ->withArguments(DaemonEvents::DAEMON_LOOP_ITERATION)
+                            ->exactly(DaemonCommandConcreteThrowException::MAX_ITERATION)
+                ->object($command->getLastException())
+                    ->isInstanceOf('\Exception')
         ;
     }
 }

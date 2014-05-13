@@ -62,6 +62,13 @@ abstract class DaemonCommand extends ContainerAwareCommand
     protected $shutdownOnException;
 
     /**
+     * Display or not exception on command output
+     *
+     * @var boolean
+     */
+    protected $showExceptions;
+
+    /**
      * @var EventDispatcherInterface
      */
     protected $dispatcher = null;
@@ -107,6 +114,7 @@ abstract class DaemonCommand extends ContainerAwareCommand
         // options
         $this->setShutdownOnException($input->getOption('shutdown-on-exception'));
         $this->setMemoryMax($input->getOption('memory-max'));
+        $this->setShowExceptions($input->getOption('show-exceptions'));
 
         if ((bool) $input->getOption('run-once')) {
             $this->setLoopMax(1);
@@ -134,11 +142,15 @@ abstract class DaemonCommand extends ContainerAwareCommand
                 $this->returnCode = $e->getCode();
                 $this->requestShutdown();
             } catch (\Exception $e) {
+                if ($this->getShowExceptions()) {
+                    $this->getApplication()->renderException($e, $output);
+                }
+
                 if ($this->getShutdownOnException()) {
                     $this->setLastException($e);
                     $this->dispatchEvent(DaemonEvents::DAEMON_LOOP_EXCEPTION_GENERAL);
 
-                    $this->returnCode = 2; // with code ?
+                    $this->returnCode = -1; // with code ?
                     $this->requestShutdown();
                 }
             }
@@ -174,6 +186,7 @@ abstract class DaemonCommand extends ContainerAwareCommand
         $this->addOption('run-max', null, InputOption::VALUE_OPTIONAL, 'Run the command x time');
         $this->addOption('memory-max', null, InputOption::VALUE_OPTIONAL, 'Gracefully stop running command when given memory volume, in bytes, is reached', 0);
         $this->addOption('shutdown-on-exception', null, InputOption::VALUE_NONE, 'Ask for shutdown if an exeption is thrown');
+        $this->addOption('show-exceptions', null, InputOption::VALUE_NONE, 'Display exception on command output');
 
         //$this->addOption('detect-leaks', null, InputOption::VALUE_NONE, 'Output information about memory usage');
 
@@ -386,6 +399,30 @@ abstract class DaemonCommand extends ContainerAwareCommand
         $this->lastException = $e;
 
         return $this;
+    }
+
+    /**
+     * Set showExceptions option value
+     *
+     * @param boolean $show
+     *
+     * @return $this
+     */
+    public function setShowExceptions($show)
+    {
+        $this->showExceptions = (bool) $show;
+
+        return $this;
+    }
+
+    /**
+     * Get showExceptions option value
+     *
+     * @return boolean
+     */
+    public function getShowExceptions()
+    {
+        return $this->showExceptions;
     }
 
     /**
