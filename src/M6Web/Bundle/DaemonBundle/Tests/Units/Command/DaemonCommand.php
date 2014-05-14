@@ -243,12 +243,20 @@ class DaemonCommand extends test
                             '--shutdown-on-exception' => true,
                             '--show-exceptions' => true
                         ]))
-                ->mock($eventDispatcher)
-                    ->call('dispatch')
-                        ->withArguments(DaemonEvents::DAEMON_LOOP_ITERATION)
-                            ->exactly(DaemonCommandConcreteThrowException::MAX_ITERATION)
                 ->object($command->getLastException())
                     ->isInstanceOf('\Exception')
+                ->output($commandTester->getDisplay())
+                    ->contains(DaemonCommandConcreteThrowException::$exceptionMessage)
+                    ->contains('Exception')
+                ->then($commandTester->execute([
+                            'command' => $command->getName(),
+                            '--shutdown-on-exception' => true
+                        ]))
+                ->object($command->getLastException())
+                    ->isInstanceOf('\Exception')
+                ->output($commandTester->getDisplay())
+                    ->notContains(DaemonCommandConcreteThrowException::$exceptionMessage)
+                    ->notContains('Exception')
         ;
     }
 }
