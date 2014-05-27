@@ -232,7 +232,12 @@ class DaemonCommand extends test
     public function testCommandException()
     {
         $eventDispatcher = new \mock\Symfony\Component\EventDispatcher\EventDispatcher();
-        $eventDispatcher->getMockController()->dispatch = function() { return true; };
+        $lastEvent       = null;
+
+        $eventDispatcher->getMockController()->dispatch = function($name, $eventObject) use(&$lastEvent) {
+            $lastEvent = $eventObject;
+            return true;
+        };
 
         $command = $this->getCommand($eventDispatcher, 'M6Web\Bundle\DaemonBundle\Tests\Units\Command\DaemonCommandConcreteThrowException');
 
@@ -257,6 +262,14 @@ class DaemonCommand extends test
                 ->output($commandTester->getDisplay())
                     ->notContains(DaemonCommandConcreteThrowException::$exceptionMessage)
                     ->notContains('Exception')
+                ->object($lastEvent)
+                    ->isInstanceOf('M6Web\Bundle\DaemonBundle\Event\DaemonEvent')
+                ->object($lastEvent->getCommand())
+                    ->isInstanceOf('M6Web\Bundle\DaemonBundle\Tests\Units\Command\DaemonCommandConcreteThrowException')
+                ->object($lastEvent->getCommand()->getLastException())
+                    ->isInstanceOf('Exception')
+                ->string($lastEvent->getCommandLastExceptionClassName())
+                    ->isEqualTo('Exception')
         ;
     }
 }
