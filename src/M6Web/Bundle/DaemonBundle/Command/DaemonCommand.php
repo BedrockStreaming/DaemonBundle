@@ -141,15 +141,15 @@ abstract class DaemonCommand extends ContainerAwareCommand
                 $this->returnCode = $e->getCode();
                 $this->requestShutdown();
             } catch (\Exception $e) {
+                $this->setLastException($e);
+                $this->dispatchEvent(DaemonEvents::DAEMON_LOOP_EXCEPTION_GENERAL);
+
                 if ($this->getShowExceptions()) {
                     $this->getApplication()->renderException($e, $output);
                 }
 
                 if ($this->getShutdownOnException()) {
-                    $this->setLastException($e);
-                    $this->dispatchEvent(DaemonEvents::DAEMON_LOOP_EXCEPTION_GENERAL);
-
-                    $this->returnCode = -1; // with code ?
+                    $this->returnCode = !is_null($e->getCode()) ? $e->getCode() : -1;
                     $this->requestShutdown();
                 }
             }
