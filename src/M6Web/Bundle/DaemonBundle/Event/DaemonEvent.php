@@ -34,7 +34,7 @@ class DaemonEvent extends Event
     /**
      * Gets last exception class name
      *
-     * @return string
+     * @return string|null
      */
     public function getCommandLastExceptionClassName()
     {

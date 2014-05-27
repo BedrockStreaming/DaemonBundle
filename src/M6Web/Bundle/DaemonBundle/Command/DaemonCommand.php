@@ -391,6 +391,7 @@ abstract class DaemonCommand extends ContainerAwareCommand
      * Set the last exception
      *
      * @param \Exception $e
+     *
      * @return \M6Web\Bundle\DaemonBundle\Command\DaemonCommand
      */
     protected function setLastException(\Exception $e)
