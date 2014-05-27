@@ -30,4 +30,20 @@ class DaemonEvent extends Event
     {
         return $this->command;
     }
+
+    /**
+     * Gets last exception class name
+     *
+     * @return string
+     */
+    public function getCommandLastExceptionClassName()
+    {
+        $exception = $this->command->getLastException();
+
+        if (!is_null($exception)) {
+            return get_class($exception);
+        }
+
+        return null;
+    }
 }
