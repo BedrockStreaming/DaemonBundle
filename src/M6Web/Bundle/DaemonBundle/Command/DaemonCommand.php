@@ -127,10 +127,11 @@ abstract class DaemonCommand extends ContainerAwareCommand
         // Setup
         $this->setup($input, $output);
 
-
         // General loop
         $this->dispatchEvent(DaemonEvents::DAEMON_LOOP_BEGIN);
         do {
+            $start = microtime(true);
+
             // Execute the inside loop code
             try {
                 call_user_func($this->loopCallback, $input, $output);
@@ -155,7 +156,7 @@ abstract class DaemonCommand extends ContainerAwareCommand
             }
 
             $this->incrLoopCount();
-            $this->dispatchEvent(DaemonEvents::DAEMON_LOOP_ITERATION);
+            $this->dispatchEvent(DaemonEvents::DAEMON_LOOP_ITERATION, microtime(true) - $start);
 
         } while (!$this->isLastLoop());
         $this->dispatchEvent(DaemonEvents::DAEMON_LOOP_END);
@@ -429,12 +430,16 @@ abstract class DaemonCommand extends ContainerAwareCommand
      * Dispatch a daemon event
      *
      * @param string $eventName
+     * @param float  $time
      *
      * @return boolean
      */
-    protected function dispatchEvent($eventName)
+    protected function dispatchEvent($eventName, $time = 0)
     {
-        $this->getEventDispatcher()->dispatch($eventName, new DaemonEvent($this));
+        $event = new DaemonEvent($this);
+        $event->setExecutionTime($time);
+
+        $this->getEventDispatcher()->dispatch($eventName, $event);
 
         return $this;
     }
@@ -470,4 +475,13 @@ abstract class DaemonCommand extends ContainerAwareCommand
 
     }
 
+    /**
+     * Return the command name
+     *
+     * @return string
+     */
+    public function __toString()
+    {
+        return str_replace(':', '-', $this->getName());
+    }
 }
