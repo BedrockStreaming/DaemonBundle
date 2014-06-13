@@ -32,6 +32,47 @@ class DaemonEvent extends Event
     }
 
     /**
+     * Set the execution time
+     *
+     * @param float
+     */
+    public function setExecutionTime($v)
+    {
+        $this->executionTime = $v;
+    }
+
+    /**
+     * Return the execution time
+     *
+     * @return float
+     */
+    public function getExecutionTime()
+    {
+        return $this->executionTime;
+    }
+
+    /**
+     * Alias of getExecutionTime for statsd.
+     * Return execution in ms
+     *
+     * @return float
+     */
+    public function getTiming()
+    {
+        return $this->getExecutionTime() * 1000;
+    }
+
+    /**
+     * Return the current memory usage
+     *
+     * @return number
+     */
+    public function getMemory()
+    {
+        return memory_get_usage();
+    }
+
+    /**
      * Gets last exception class name
      *
      * @return string|null
