@@ -434,7 +434,7 @@ abstract class DaemonCommand extends ContainerAwareCommand
      *
      * @return boolean
      */
-    protected function dispatchEvent($eventName, $time = 0)
+    protected function dispatchEvent($eventName, $time = 0.0)
     {
         $event = new DaemonEvent($this);
         $event->setExecutionTime($time);
