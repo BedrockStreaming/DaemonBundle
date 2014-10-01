@@ -35,7 +35,7 @@ class MyDaemonizedCommand extends DaemonCommand
 You can run a daemonized command as any other Symfony command. DaemonCommand parent class provide additional options :
 
 - `--run-once` - Run the command just once
-- `--loop-max` - Run the command x time
+- `--run-max` - Run the command x time
 - `--memory-max` - Gracefully stop running command when given memory volume, in bytes, is reached
 - `--shutdown-on-exception` - Ask for shutdown if an exeption is thrown
 - `--show-exceptions` - Display excepions on command output stream
