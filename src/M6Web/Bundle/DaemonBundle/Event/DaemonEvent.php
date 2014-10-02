@@ -35,10 +35,14 @@ class DaemonEvent extends Event
      * Set the execution time
      *
      * @param float
+     *
+     * @return DaemonEvent
      */
     public function setExecutionTime($v)
     {
         $this->executionTime = $v;
+
+        return $this;
     }
 
     /**
