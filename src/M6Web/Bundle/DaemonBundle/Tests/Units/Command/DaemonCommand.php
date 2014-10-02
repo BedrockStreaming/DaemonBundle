@@ -5,16 +5,24 @@ namespace M6Web\Bundle\DaemonBundle\Tests\Units\Command;
 use mageekguy\atoum\test;
 use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Tester\CommandTester;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 use M6Web\Bundle\DaemonBundle\DaemonEvents;
 
 class DaemonCommand extends test
 {
 
-    protected function getCommand($eventDispatcher = null, $commandClass = 'M6Web\Bundle\DaemonBundle\Tests\Units\Command\DaemonCommandConcrete')
+    protected function getCommand($eventDispatcher = null, ContainerInterface $container = null, $commandClass = 'M6Web\Bundle\DaemonBundle\Tests\Units\Command\DaemonCommandConcrete')
     {
         $application = new Application();
         $application->add(new $commandClass());
+
+        if (is_null($container)) {
+            $container = new \mock\Symfony\Component\DependencyInjection\Container;
+            $container->getMockController()->getParameter = [];
+        }
+
         $command = $application->find('test:daemontest');
+        $command->setContainer($container);
 
         if (!is_null($eventDispatcher)) {
             $command->setEventDispatcher($eventDispatcher);
@@ -114,7 +122,7 @@ class DaemonCommand extends test
         $eventDispatcher = new \mock\Symfony\Component\EventDispatcher\EventDispatcher();
         $eventDispatcher->getMockController()->dispatch = function() { return true; };
 
-        $command = $this->getCommand($eventDispatcher, 'M6Web\Bundle\DaemonBundle\Tests\Units\Command\DaemonCommandConcreteThrowStopException');
+        $command = $this->getCommand($eventDispatcher, null, 'M6Web\Bundle\DaemonBundle\Tests\Units\Command\DaemonCommandConcreteThrowStopException');
 
         $this
             ->if($commandTester = new CommandTester($command))
@@ -149,7 +157,7 @@ class DaemonCommand extends test
         $eventDispatcher = new \mock\Symfony\Component\EventDispatcher\EventDispatcher();
         $eventDispatcher->getMockController()->dispatch = function() { return true; };
 
-        $command = $this->getCommand($eventDispatcher, 'M6Web\Bundle\DaemonBundle\Tests\Units\Command\DaemonCommandConcreteMaxMemory');
+        $command = $this->getCommand($eventDispatcher, null, 'M6Web\Bundle\DaemonBundle\Tests\Units\Command\DaemonCommandConcreteMaxMemory');
 
         $this
             ->if($commandTester = new CommandTester($command))
@@ -239,7 +247,7 @@ class DaemonCommand extends test
             return true;
         };
 
-        $command = $this->getCommand($eventDispatcher, 'M6Web\Bundle\DaemonBundle\Tests\Units\Command\DaemonCommandConcreteThrowException');
+        $command = $this->getCommand($eventDispatcher, null,'M6Web\Bundle\DaemonBundle\Tests\Units\Command\DaemonCommandConcreteThrowException');
 
         $this
             ->if($commandTester = new CommandTester($command))
@@ -271,5 +279,40 @@ class DaemonCommand extends test
                 ->string($lastEvent->getCommandLastExceptionClassName())
                     ->isEqualTo('Exception')
         ;
+    }
+
+    public function testCommandEvents()
+    {
+        $eventDispatcher = new \mock\Symfony\Component\EventDispatcher\EventDispatcher();
+        $container       = new \mock\Symfony\Component\DependencyInjection\Container;
+        $command         = $this->getCommand($eventDispatcher, $container);
+
+        $eventDispatcher
+            ->getMockController()
+            ->dispatch = function() { return true; };
+
+        $container
+            ->getMockController()
+            ->getParameter = function() {
+                return [
+                    ['count' => 10, 'name' => 'event 10'],
+                    ['count' => 5,  'name' => 'event 5'],
+                ];
+            };
+
+        $this->if($commandTester = new CommandTester($command))
+            ->then($commandTester->execute([
+                        'command' => $command->getName(),
+                        '--run-max' => 20
+                    ]))
+            ->mock($eventDispatcher)
+                ->call('dispatch')
+                    ->withArguments(DaemonEvents::DAEMON_LOOP_BEGIN)->once()
+                    ->withArguments(DaemonEvents::DAEMON_LOOP_ITERATION)->exactly(20)
+                    ->withArguments(DaemonEvents::DAEMON_LOOP_END)->once()
+                    ->withArguments(DaemonEvents::DAEMON_STOP)->once()
+                    ->withArguments(DaemonEvents::DAEMON_STOP)->once()
+                    ->withArguments('event 10')->twice()
+                    ->withArguments('event 5')->exactly(4);
     }
 }
