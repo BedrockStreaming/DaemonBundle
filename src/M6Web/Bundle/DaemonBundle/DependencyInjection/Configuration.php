@@ -22,17 +22,19 @@ class Configuration implements ConfigurationInterface
     public function getConfigTreeBuilder()
     {
         $treeBuilder = new TreeBuilder();
-        $rootNode    = $treeBuilder->root('m6web_daemon');
+        $rootNode    = $treeBuilder->root('m6_web_daemon');
 
         $rootNode
             ->children()
             ->arrayNode('iterations_events')
-                ->children()
-                    ->integerNode('count')->cannotBeEmpty()->min(1)->end()
-                    ->scalarNode('event_name')->cannotBeEmpty()->end()
+                ->prototype('array')
+                    ->children()
+                        ->integerNode('count')->cannotBeEmpty()->min(1)->end()
+                        ->scalarNode('name')->cannotBeEmpty()->end()
+                    ->end()
                 ->end()
             ->end();
 
         return $treeBuilder;
     }
-} 
+}
