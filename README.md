@@ -2,6 +2,41 @@
 
 Allows you to create daemonized commands.
 
+## Installation
+
+Via composer :
+
+```json
+"require": {
+    "m6web/daemon-bundle":"1.1.*"
+}
+```
+
+then enable the bundle in your kernel:
+
+```php
+<?php
+
+$bundles = [
+    new M6Web\Bundle\DaemonBundle\M6WebDaemonBundle
+];
+```
+
+## Configuration
+
+You can optionnaly define events which are triggered each X iterations :
+
+```yml
+m6_web_daemon:
+    iterations_events:
+        -
+            count: 10
+            name: "daemon.iteration.each.10"
+        -
+            count: 5
+            name: "daemon.iteration.each.5"
+```
+
 ## Write command
 
 ```php

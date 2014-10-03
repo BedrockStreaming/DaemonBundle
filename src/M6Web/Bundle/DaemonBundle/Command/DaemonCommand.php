@@ -84,12 +84,20 @@ abstract class DaemonCommand extends ContainerAwareCommand
     protected $lastException = null;
 
     /**
+     * @var float
+     */
+    protected $startTime = null;
+
+    /**
+     * @var array
+     */
+    protected $iterationsEvents = [];
+
+    /**
      * {@inheritdoc}
      */
     public function __construct($name = null)
     {
-        // set indicators
-
         // Construct parent context (also calls configure)
         parent::__construct($name);
 
@@ -109,6 +117,8 @@ abstract class DaemonCommand extends ContainerAwareCommand
      */
     public function daemon(InputInterface $input, OutputInterface $output)
     {
+        $this->configureEvents();
+
         $this->dispatchEvent(DaemonEvents::DAEMON_START);
 
         // options
@@ -130,7 +140,7 @@ abstract class DaemonCommand extends ContainerAwareCommand
         // General loop
         $this->dispatchEvent(DaemonEvents::DAEMON_LOOP_BEGIN);
         do {
-            $start = microtime(true);
+            $this->startTime = microtime(true);
 
             // Execute the inside loop code
             try {
@@ -156,7 +166,8 @@ abstract class DaemonCommand extends ContainerAwareCommand
             }
 
             $this->incrLoopCount();
-            $this->dispatchEvent(DaemonEvents::DAEMON_LOOP_ITERATION, microtime(true) - $start);
+            $this->dispatchEvent(DaemonEvents::DAEMON_LOOP_ITERATION);
+            $this->dispatchConfigurationEvents();
 
         } while (!$this->isLastLoop());
         $this->dispatchEvent(DaemonEvents::DAEMON_LOOP_END);
@@ -434,8 +445,10 @@ abstract class DaemonCommand extends ContainerAwareCommand
      *
      * @return boolean
      */
-    protected function dispatchEvent($eventName, $time = 0)
+    protected function dispatchEvent($eventName)
     {
+        $time = !is_null($this->startTime) ? microtime(true) - $this->startTime : 0;
+
         $event = new DaemonEvent($this);
         $event->setExecutionTime($time);
 
@@ -483,5 +496,35 @@ abstract class DaemonCommand extends ContainerAwareCommand
     public function __toString()
     {
         return str_replace(':', '-', $this->getName());
+    }
+
+    /**
+     * Retrieve configured events
+     *
+     * @return DaemonCommand
+     */
+    protected function configureEvents()
+    {
+        $this->iterationsEvents = $this
+            ->getContainer()
+            ->getParameter('m6web_daemon.iterations_events');
+
+        return $this;
+    }
+
+    /**
+     * Dispatch configured events
+     *
+     * @return DaemonCommand
+     */
+    protected function dispatchConfigurationEvents()
+    {
+        foreach ($this->iterationsEvents as $event) {
+            if (!($this->loopCount % $event['count'])) {
+                $this->dispatchEvent($event['name']);
+            }
+        }
+
+        return $this;
     }
 }
