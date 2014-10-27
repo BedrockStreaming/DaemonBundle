@@ -10,7 +10,6 @@ use M6Web\Bundle\DaemonBundle\DaemonEvents;
 
 class DaemonCommand extends test
 {
-
     protected function getCommand($eventDispatcher = null, ContainerInterface $container = null, $commandClass = 'M6Web\Bundle\DaemonBundle\Tests\Units\Command\DaemonCommandConcrete')
     {
         $application = new Application();
@@ -314,5 +313,20 @@ class DaemonCommand extends test
                     ->withArguments(DaemonEvents::DAEMON_STOP)->once()
                     ->withArguments('event 10')->twice()
                     ->withArguments('event 5')->exactly(4);
+    }
+
+    public function testWithoutEventDispatcher()
+    {
+        $command = $this->getCommand();
+        $command->setEventDispatcher(null);
+
+        $this->if($commandTester = new CommandTester($command))
+            ->then($commandTester->execute([
+                'command' => $command->getName(),
+                '--run-once' => true
+            ]))
+            ->variable($command->getEventDispatcher())
+                ->isNull()
+        ;
     }
 }

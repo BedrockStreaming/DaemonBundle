@@ -117,6 +117,11 @@ abstract class DaemonCommand extends ContainerAwareCommand
      */
     public function daemon(InputInterface $input, OutputInterface $output)
     {
+        $container = $this->getContainer();
+        if (is_null($this->dispatcher) && $container->has('event_dispatcher')) {
+            $this->dispatcher = $this->getContainer()->get('event_dispatcher');
+        }
+
         $this->configureEvents();
 
         $this->dispatchEvent(DaemonEvents::DAEMON_START);
@@ -368,7 +373,7 @@ abstract class DaemonCommand extends ContainerAwareCommand
      *
      * @return DaemonCommand
      */
-    public function setEventDispatcher(EventDispatcherInterface $dispatcher)
+    public function setEventDispatcher(EventDispatcherInterface $dispatcher = null)
     {
         $this->dispatcher = $dispatcher;
 
@@ -382,10 +387,6 @@ abstract class DaemonCommand extends ContainerAwareCommand
      */
     public function getEventDispatcher()
     {
-        if (is_null($this->dispatcher)) {
-            $this->dispatcher = $this->getContainer()->get('event_dispatcher');
-        }
-
         return $this->dispatcher;
     }
 
@@ -447,12 +448,15 @@ abstract class DaemonCommand extends ContainerAwareCommand
      */
     protected function dispatchEvent($eventName)
     {
-        $time = !is_null($this->startTime) ? microtime(true) - $this->startTime : 0;
+        $dispatcher = $this->getEventDispatcher();
+        if (!is_null($dispatcher)) {
+            $time = !is_null($this->startTime) ? microtime(true) - $this->startTime : 0;
 
-        $event = new DaemonEvent($this);
-        $event->setExecutionTime($time);
+            $event = new DaemonEvent($this);
+            $event->setExecutionTime($time);
 
-        $this->getEventDispatcher()->dispatch($eventName, $event);
+            $dispatcher->dispatch($eventName, $event);
+        }
 
         return $this;
     }
