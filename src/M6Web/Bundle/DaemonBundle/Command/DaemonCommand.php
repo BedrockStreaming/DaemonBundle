@@ -509,9 +509,12 @@ abstract class DaemonCommand extends ContainerAwareCommand
      */
     protected function configureEvents()
     {
-        $this->iterationsEvents = $this
-            ->getContainer()
-            ->getParameter('m6web_daemon.iterations_events');
+        $container = $this->getContainer();
+        $key       = 'm6web_daemon.iterations_events';
+
+        if ($container->has($key)) {
+            $this->iterationsEvents = $container->getParameter($key);
+        }
 
         return $this;
     }

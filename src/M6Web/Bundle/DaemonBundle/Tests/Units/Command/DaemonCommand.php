@@ -17,7 +17,6 @@ class DaemonCommand extends test
 
         if (is_null($container)) {
             $container = new \mock\Symfony\Component\DependencyInjection\Container;
-            $container->getMockController()->getParameter = [];
         }
 
         $command = $application->find('test:daemontest');
@@ -297,6 +296,12 @@ class DaemonCommand extends test
                     ['count' => 10, 'name' => 'event 10'],
                     ['count' => 5,  'name' => 'event 5'],
                 ];
+            };
+
+        $container
+            ->getMockController()
+            ->has = function($id) {
+                return true;
             };
 
         $this->if($commandTester = new CommandTester($command))
