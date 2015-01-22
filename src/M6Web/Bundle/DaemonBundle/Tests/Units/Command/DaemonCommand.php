@@ -300,7 +300,7 @@ class DaemonCommand extends test
 
         $container
             ->getMockController()
-            ->has = function($id) {
+            ->hasParameter = function($id) {
                 return true;
             };
 
