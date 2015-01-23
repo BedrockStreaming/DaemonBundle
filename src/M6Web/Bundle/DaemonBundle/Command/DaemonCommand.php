@@ -512,7 +512,7 @@ abstract class DaemonCommand extends ContainerAwareCommand
         $container = $this->getContainer();
         $key       = 'm6web_daemon.iterations_events';
 
-        if ($container->has($key)) {
+        if ($container->hasParameter($key)) {
             $this->iterationsEvents = $container->getParameter($key);
         }
 
