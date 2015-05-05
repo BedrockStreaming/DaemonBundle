@@ -101,6 +101,8 @@ abstract class DaemonCommand extends ContainerAwareCommand
         // Construct parent context (also calls configure)
         parent::__construct($name);
 
+        $this->configureDaemonDefinition();
+
         // Set our runloop as the executable code
         parent::setCode(array($this, 'daemon'));
 
@@ -196,15 +198,6 @@ abstract class DaemonCommand extends ContainerAwareCommand
     {
         // Force the creation of the synopsis before the merge with the app definition
         $this->getSynopsis();
-
-        // Merge our options
-        $this->addOption('run-once', null, InputOption::VALUE_NONE, 'Run the command just once');
-        $this->addOption('run-max', null, InputOption::VALUE_OPTIONAL, 'Run the command x time');
-        $this->addOption('memory-max', null, InputOption::VALUE_OPTIONAL, 'Gracefully stop running command when given memory volume, in bytes, is reached', 0);
-        $this->addOption('shutdown-on-exception', null, InputOption::VALUE_NONE, 'Ask for shutdown if an exeption is thrown');
-        $this->addOption('show-exceptions', null, InputOption::VALUE_NONE, 'Display exception on command output');
-
-        //$this->addOption('detect-leaks', null, InputOption::VALUE_NONE, 'Output information about memory usage');
 
         // Add the signal handler
         if (function_exists('pcntl_signal')) {
@@ -533,5 +526,18 @@ abstract class DaemonCommand extends ContainerAwareCommand
         }
 
         return $this;
+    }
+
+    /**
+     * Add daemon options to the command definition
+     */
+    private function configureDaemonDefinition()
+    {
+        $this->addOption('run-once', null, InputOption::VALUE_NONE, 'Run the command just once.');
+        $this->addOption('run-max', null, InputOption::VALUE_OPTIONAL, 'Run the command x time.');
+        $this->addOption('memory-max', null, InputOption::VALUE_OPTIONAL, 'Gracefully stop running command when given memory volume, in bytes, is reached.', 0);
+        $this->addOption('shutdown-on-exception', null, InputOption::VALUE_NONE, 'Ask for shutdown if an exeption is thrown.');
+        $this->addOption('show-exceptions', null, InputOption::VALUE_NONE, 'Display exception on command output.');
+        //$this->addOption('detect-leaks', null, InputOption::VALUE_NONE, 'Output information about memory usage');
     }
 }
