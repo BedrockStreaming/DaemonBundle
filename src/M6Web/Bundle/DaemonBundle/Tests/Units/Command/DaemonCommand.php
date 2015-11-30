@@ -334,4 +334,47 @@ class DaemonCommand extends test
                 ->isNull()
         ;
     }
+
+    public function testInteractionCallback()
+    {
+        $command = $this->getCommand(null, null, 'M6Web\Bundle\DaemonBundle\Tests\Units\Command\DaemonCommandConcreteIterationCallback');
+
+        $this->if($commandTester = new CommandTester($command))
+            ->then($commandTester->execute([
+                        'command' => $command->getName(),
+                        '--run-max' => 4
+                    ]))
+            ->integer($command->countCall)
+                ->isEqualTo(0);
+
+        $command = $this->getCommand(null, null, 'M6Web\Bundle\DaemonBundle\Tests\Units\Command\DaemonCommandConcreteIterationCallback');
+
+        $this->if($commandTester = new CommandTester($command))
+            ->then($commandTester->execute([
+                        'command' => $command->getName(),
+                        '--run-max' => 19
+                    ]))
+            ->integer($command->countCall)
+                ->isEqualTo(3);
+
+        $command = $this->getCommand(null, null, 'M6Web\Bundle\DaemonBundle\Tests\Units\Command\DaemonCommandConcreteIterationCallback');
+
+        $this->if($commandTester = new CommandTester($command))
+            ->then($commandTester->execute([
+                        'command' => $command->getName(),
+                        '--run-max' => 20
+                    ]))
+            ->integer($command->countCall)
+                ->isEqualTo(4);
+
+        $command = $this->getCommand(null, null, 'M6Web\Bundle\DaemonBundle\Tests\Units\Command\DaemonCommandConcreteIterationCallback');
+
+        $this->if($commandTester = new CommandTester($command))
+            ->then($commandTester->execute([
+                        'command' => $command->getName(),
+                        '--run-max' => 21
+                    ]))
+            ->integer($command->countCall)
+                ->isEqualTo(4);
+    }
 }
