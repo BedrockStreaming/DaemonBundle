@@ -10,6 +10,7 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use M6Web\Bundle\DaemonBundle\Event\DaemonEvent;
 use M6Web\Bundle\DaemonBundle\DaemonEvents;
 
+
 /**
  * Class DaemonCommand
  * Abstract class for build daemon commands
@@ -94,6 +95,11 @@ abstract class DaemonCommand extends ContainerAwareCommand
     protected $iterationsEvents = [];
 
     /**
+     * @var array
+     */
+    protected $iterationsIntervalCallbacks = [];
+
+    /**
      * {@inheritdoc}
      */
     public function __construct($name = null)
@@ -151,7 +157,11 @@ abstract class DaemonCommand extends ContainerAwareCommand
 
             // Execute the inside loop code
             try {
+                // Loop Callback
                 call_user_func($this->loopCallback, $input, $output);
+
+                // Loop interval callback
+                $this->callIterationsIntervalCallbacks($input, $output);
             } catch (StopLoopException $e) {
                 $this->setLastException($e);
                 $this->dispatchEvent(DaemonEvents::DAEMON_LOOP_EXCEPTION_STOP);
@@ -473,6 +483,36 @@ abstract class DaemonCommand extends ContainerAwareCommand
         }
 
         return $this->isShutdownRequested();
+    }
+
+    /**
+     * Add your own callback after every iteration interval
+     *
+     * @param integer $iterationsInterval
+     * @param callable $onIterationsInterval
+     */
+    public function addIterationsIntervalCallback($iterationsInterval, callable $onIterationsInterval)
+    {
+        if (!is_integer($iterationsInterval) || ($iterationsInterval <= 0)) {
+            throw \InvalidArgumentException('Iteration interval must be a positive integer');
+        }
+
+        $this->iterationsIntervalCallbacks[] = [
+            'interval' => $iterationsInterval,
+            'callable' => $onIterationsInterval
+        ];
+    }
+
+    /**
+     * Execute callbacks after every iteration interval
+     */
+    protected function callIterationsIntervalCallbacks(InputInterface $input, OutputInterface $output)
+    {
+        foreach ($this->iterationsIntervalCallbacks as $iterationsIntervalCallback) {
+            if (($this->getLoopCount()+1) % $iterationsIntervalCallback['interval'] === 0) {
+                call_user_func($iterationsIntervalCallback['callable'], $input, $output);
+            }
+        }
     }
 
     protected function setup(InputInterface $input, OutputInterface $output)

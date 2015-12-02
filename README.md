@@ -56,11 +56,30 @@ class MyDaemonizedCommand extends DaemonCommand
             ->setDescription('My daemonized command');
     }
 
+    protected function setup(InputInterface $input, OutputInterface $output)
+    {
+        // Set up your daemon here
+
+        // Add your own optional callback : called every 10 iterations
+        $this->addIterationsIntervalCallback(10, [$this, 'executeEveryTenLoops']);
+    }
+
+    /**
+     * Execute is called at every loop
+     */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $output->writeln("Iteration");
 
         usleep(100000);
+    }
+
+    /**
+     * executeEveryTenLoops is called every 10 loops
+     */
+    protected function executeEveryTenLoops(InputInterface $input, OutputInterface $output)
+    {
+        $output->writeln("Iteration " . $this->getLoopCount());
     }
 }
 ```
