@@ -238,10 +238,10 @@ class DaemonCommand extends test
     public function testCommandException()
     {
         $eventDispatcher = new \mock\Symfony\Component\EventDispatcher\EventDispatcher();
-        $lastEvent       = null;
+        $lastEvents      = [];
 
-        $eventDispatcher->getMockController()->dispatch = function($name, $eventObject) use(&$lastEvent) {
-            $lastEvent = $eventObject;
+        $eventDispatcher->getMockController()->dispatch = function ($name, $eventObject) use (&$lastEvents) {
+            $lastEvents[$name] = $eventObject;
             return true;
         };
 
@@ -268,13 +268,17 @@ class DaemonCommand extends test
                 ->output($commandTester->getDisplay())
                     ->notContains(DaemonCommandConcreteThrowException::$exceptionMessage)
                     ->notContains('Exception')
-                ->object($lastEvent)
+                ->object($lastEvents['console.exception'])
+                    ->isInstanceOf('Symfony\Component\Console\Event\ConsoleExceptionEvent')
+                ->object($lastEvents['console.exception']->getException())
+                    ->isEqualTo($command->getLastException())
+                ->object(end($lastEvents))
                     ->isInstanceOf('M6Web\Bundle\DaemonBundle\Event\DaemonEvent')
-                ->object($lastEvent->getCommand())
+                ->object(end($lastEvents)->getCommand())
                     ->isInstanceOf('M6Web\Bundle\DaemonBundle\Tests\Units\Command\DaemonCommandConcreteThrowException')
-                ->object($lastEvent->getCommand()->getLastException())
+                ->object(end($lastEvents)->getCommand()->getLastException())
                     ->isInstanceOf('Exception')
-                ->string($lastEvent->getCommandLastExceptionClassName())
+                ->string(end($lastEvents)->getCommandLastExceptionClassName())
                     ->isEqualTo('Exception')
         ;
     }
