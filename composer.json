@@ -8,10 +8,10 @@
         }
     ],
     "require" : {
-        "php" : ">=5.4",
+        "php" : ">=5.5.9",
         "ext-pcntl" : "*",
-        "symfony/console" : "~2.3",
-        "symfony/framework-bundle" : ">=2.3"
+        "symfony/console" : "~3.0",
+        "symfony/framework-bundle" : "~3.0"
     },
     "require-dev" : {
         "atoum/atoum" : "master-dev"
@@ -19,6 +19,11 @@
     "autoload" : {
         "psr-0" : {
             "" : "src/"
+        }
+    },
+    "extra": {
+        "branch-alias": {
+            "dev-master": "2.0.x-dev"
         }
     },
     "minimum-stability" : "dev"

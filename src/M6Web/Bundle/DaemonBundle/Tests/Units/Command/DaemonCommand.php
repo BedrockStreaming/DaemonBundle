@@ -170,20 +170,6 @@ class DaemonCommand extends test
         ;
     }
 
-    public function testSetCodeException()
-    {
-        $command = $this->getCommand();
-
-        $this
-            ->exception(function() use($command) {
-                $command->setCode(null);
-            })
-                ->isInstanceOf('\InvalidArgumentException')
-                ->hasMessage('Invalid callable provided to Command::setCode.')
-        ;
-    }
-
-
     /**
      * @dataProvider signalProvider
      */
