@@ -8,7 +8,7 @@ Via composer :
 
 ```json
 "require": {
-    "m6web/daemon-bundle":"1.1.*"
+    "m6web/daemon-bundle":"^3.0"
 }
 ```
 
@@ -18,9 +18,11 @@ then enable the bundle in your kernel:
 <?php
 
 $bundles = [
-    new M6Web\Bundle\DaemonBundle\M6WebDaemonBundle
+    new M6Web\Bundle\DaemonBundle\M6WebDaemonBundle()
 ];
 ```
+
+Note: For Symfony versions ">=2.3 && <3.0" support, you can use `"m6web/daemon-bundle":"^1.4"`.
 
 ## Configuration
 
