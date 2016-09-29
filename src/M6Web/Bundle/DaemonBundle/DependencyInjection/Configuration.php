@@ -22,7 +22,7 @@ class Configuration implements ConfigurationInterface
             ->arrayNode('iterations_events')
                 ->prototype('array')
                     ->children()
-                        ->integerNode('count')->cannotBeEmpty()->min(1)->end()
+                        ->integerNode('count')->min(1)->end()
                         ->scalarNode('name')->cannotBeEmpty()->end()
                     ->end()
                 ->end()
