@@ -490,7 +490,7 @@ abstract class DaemonCommand extends ContainerAwareCommand
     public function addIterationsIntervalCallback($iterationsInterval, callable $onIterationsInterval)
     {
         if (!is_integer($iterationsInterval) || ($iterationsInterval <= 0)) {
-            throw \InvalidArgumentException('Iteration interval must be a positive integer');
+            throw new \InvalidArgumentException('Iteration interval must be a positive integer');
         }
 
         $this->iterationsIntervalCallbacks[] = [
