@@ -5,9 +5,7 @@ namespace M6Web\Bundle\DaemonBundle\Tests\Units\DependencyInjection;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Loader\YamlFileLoader;
-
 use mageekguy\atoum\test;
-
 
 class M6WebDaemonExtension extends test
 {
@@ -31,7 +29,7 @@ class M6WebDaemonExtension extends test
     {
         $container = $this->getContainerForConfiguration('bad-parameters-config');
         $this
-            ->exception(function() use ($container) {
+            ->exception(function () use ($container) {
                 $container->compile();
             })->isInstanceOf('Symfony\Component\Config\Definition\Exception\InvalidTypeException')
         ;

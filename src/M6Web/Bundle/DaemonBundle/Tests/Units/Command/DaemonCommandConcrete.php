@@ -8,7 +8,6 @@ use M6Web\Bundle\DaemonBundle\Command\DaemonCommand as Base;
 
 class DaemonCommandConcrete extends Base
 {
-
     protected function configure()
     {
         $this->setName('test:daemontest')
@@ -19,4 +18,4 @@ class DaemonCommandConcrete extends Base
     {
         return true;
     }
-} 
+}

@@ -26,7 +26,7 @@ Note: For Symfony versions ">=2.3 && <3.0" support, you can use `"m6web/daemon-b
 
 ## Configuration
 
-You can optionnaly define events which are triggered each X iterations :
+You can optionally define events which are triggered each X iterations :
 
 ```yml
 m6_web_daemon:
@@ -93,8 +93,8 @@ You can run a daemonized command as any other Symfony command. DaemonCommand par
 - `--run-once` - Run the command just once
 - `--run-max` - Run the command x time
 - `--memory-max` - Gracefully stop running command when given memory volume, in bytes, is reached
-- `--shutdown-on-exception` - Ask for shutdown if an exeption is thrown
-- `--show-exceptions` - Display excepions on command output stream
+- `--shutdown-on-exception` - Ask for shutdown if an exception is thrown
+- `--show-exceptions` - Display exceptions on command output stream
 
 ## Command events
 

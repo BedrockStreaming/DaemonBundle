@@ -9,7 +9,6 @@ use M6Web\Bundle\DaemonBundle\Command\StopLoopException as StopLoopExceptionBase
 
 class DaemonCommandConcreteThrowStopException extends Base
 {
-
     public static $count = 0;
 
     const MAX_ITERATION = 7;
@@ -22,10 +21,11 @@ class DaemonCommandConcreteThrowStopException extends Base
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        self::$count++;
+        ++self::$count;
         if (self::$count >= self::MAX_ITERATION) {
             throw new StopLoopExceptionBase();
         }
+
         return true;
     }
 }

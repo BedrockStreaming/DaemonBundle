@@ -10,62 +10,59 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use M6Web\Bundle\DaemonBundle\Event\DaemonEvent;
 use M6Web\Bundle\DaemonBundle\DaemonEvents;
 
-
 /**
  * Class DaemonCommand
- * Abstract class for build daemon commands
- *
- * @package M6Web\Bundle\DaemonBundle\Command
+ * Abstract class for build daemon commands.
  */
 abstract class DaemonCommand extends ContainerAwareCommand
 {
     /**
-     * Tells if shutdown is requested
+     * Tells if shutdown is requested.
      *
-     * @var boolean
+     * @var bool
      */
     protected $shutdownRequested = false;
 
     /**
      * Alows the concrete command to
-     * setup an exit code
+     * setup an exit code.
      *
-     * @var integer
+     * @var int
      */
     protected $returnCode = 0;
 
     /**
-     * Loop count
+     * Loop count.
      *
      * @var int
      */
     protected $loopCount = 0;
 
     /**
-     * Store max loop option value
+     * Store max loop option value.
      *
-     * @var integer
+     * @var int
      */
     protected $loopMax = null;
 
     /**
-     * Store max memory option value
+     * Store max memory option value.
      *
-     * @var integer
+     * @var int
      */
     protected $memoryMax = 0;
 
     /**
-     * Store shutdown on exception option value
+     * Store shutdown on exception option value.
      *
-     * @var boolean
+     * @var bool
      */
     protected $shutdownOnException;
 
     /**
-     * Display or not exception on command output
+     * Display or not exception on command output.
      *
-     * @var boolean
+     * @var bool
      */
     protected $showExceptions;
 
@@ -75,7 +72,7 @@ abstract class DaemonCommand extends ContainerAwareCommand
     protected $dispatcher = null;
 
     /**
-     * @var Callable
+     * @var callable
      */
     protected $loopCallback;
 
@@ -116,12 +113,12 @@ abstract class DaemonCommand extends ContainerAwareCommand
     }
 
     /**
-     * The daemon loop
+     * The daemon loop.
      *
      * @param InputInterface  $input
      * @param OutputInterface $output
      *
-     * @return integer The command exit code
+     * @return int The command exit code
      */
     public function daemon(InputInterface $input, OutputInterface $output)
     {
@@ -185,7 +182,6 @@ abstract class DaemonCommand extends ContainerAwareCommand
             $this->incrLoopCount();
             $this->dispatchEvent(DaemonEvents::DAEMON_LOOP_ITERATION);
             $this->dispatchConfigurationEvents();
-
         } while (!$this->isLastLoop());
         $this->dispatchEvent(DaemonEvents::DAEMON_LOOP_END);
 
@@ -209,19 +205,16 @@ abstract class DaemonCommand extends ContainerAwareCommand
         // Force the creation of the synopsis before the merge with the app definition
         $this->getSynopsis();
 
-        // Add the signal handler
-        if (function_exists('pcntl_signal')) {
-            // Enable ticks for fast signal processing
-            declare(ticks = 1);
+        // Enable ticks for fast signal processing
+        declare(ticks=1);
 
-            pcntl_signal(SIGTERM, array($this, 'handleSignal'));
-            pcntl_signal(SIGINT, array($this, 'handleSignal'));
-        }
+        // Add the signal handler
+        pcntl_signal(SIGTERM, array($this, 'handleSignal'));
+        pcntl_signal(SIGINT, array($this, 'handleSignal'));
 
         // And now run the command
         return parent::run($input, $output);
     }
-
 
     /**
      * Handle proces signals.
@@ -255,7 +248,7 @@ abstract class DaemonCommand extends ContainerAwareCommand
     }
 
     /**
-     * Is shutdown requested
+     * Is shutdown requested.
      *
      * @return bool
      */
@@ -309,9 +302,9 @@ abstract class DaemonCommand extends ContainerAwareCommand
     }
 
     /**
-     * Define memory max option value
+     * Define memory max option value.
      *
-     * @param integer $memory
+     * @param int $memory
      *
      * @return $this
      */
@@ -323,9 +316,9 @@ abstract class DaemonCommand extends ContainerAwareCommand
     }
 
     /**
-     * Get memory max option value
+     * Get memory max option value.
      *
-     * @return integer
+     * @return int
      */
     public function getMemoryMax()
     {
@@ -333,11 +326,12 @@ abstract class DaemonCommand extends ContainerAwareCommand
     }
 
     /**
-     * Define command code callback
+     * Define command code callback.
      *
      * @param callable $callback
      *
      * @throws \InvalidArgumentException
+     *
      * @return $this
      */
     public function setCode(callable $callback)
@@ -380,7 +374,7 @@ abstract class DaemonCommand extends ContainerAwareCommand
     }
 
     /**
-     * get the EventDispatcher
+     * get the EventDispatcher.
      *
      * @return object|EventDispatcherInterface
      */
@@ -390,7 +384,7 @@ abstract class DaemonCommand extends ContainerAwareCommand
     }
 
     /**
-     * Return the last exception
+     * Return the last exception.
      *
      * @return Exception|null
      */
@@ -400,7 +394,7 @@ abstract class DaemonCommand extends ContainerAwareCommand
     }
 
     /**
-     * Set the last exception
+     * Set the last exception.
      *
      * @param \Exception $e
      *
@@ -414,9 +408,9 @@ abstract class DaemonCommand extends ContainerAwareCommand
     }
 
     /**
-     * Set showExceptions option value
+     * Set showExceptions option value.
      *
-     * @param boolean $show
+     * @param bool $show
      *
      * @return $this
      */
@@ -428,9 +422,9 @@ abstract class DaemonCommand extends ContainerAwareCommand
     }
 
     /**
-     * Get showExceptions option value
+     * Get showExceptions option value.
      *
-     * @return boolean
+     * @return bool
      */
     public function getShowExceptions()
     {
@@ -438,12 +432,12 @@ abstract class DaemonCommand extends ContainerAwareCommand
     }
 
     /**
-     * Dispatch a daemon event
+     * Dispatch a daemon event.
      *
      * @param string $eventName
      * @param float  $time
      *
-     * @return boolean
+     * @return bool
      */
     protected function dispatchEvent($eventName)
     {
@@ -461,9 +455,9 @@ abstract class DaemonCommand extends ContainerAwareCommand
     }
 
     /**
-     * Return true after the last loop
+     * Return true after the last loop.
      *
-     * @return boolean
+     * @return bool
      */
     protected function isLastLoop()
     {
@@ -482,30 +476,30 @@ abstract class DaemonCommand extends ContainerAwareCommand
     }
 
     /**
-     * Add your own callback after every iteration interval
+     * Add your own callback after every iteration interval.
      *
-     * @param integer $iterationsInterval
+     * @param int      $iterationsInterval
      * @param callable $onIterationsInterval
      */
     public function addIterationsIntervalCallback($iterationsInterval, callable $onIterationsInterval)
     {
-        if (!is_integer($iterationsInterval) || ($iterationsInterval <= 0)) {
+        if (!is_int($iterationsInterval) || ($iterationsInterval <= 0)) {
             throw new \InvalidArgumentException('Iteration interval must be a positive integer');
         }
 
         $this->iterationsIntervalCallbacks[] = [
             'interval' => $iterationsInterval,
-            'callable' => $onIterationsInterval
+            'callable' => $onIterationsInterval,
         ];
     }
 
     /**
-     * Execute callbacks after every iteration interval
+     * Execute callbacks after every iteration interval.
      */
     protected function callIterationsIntervalCallbacks(InputInterface $input, OutputInterface $output)
     {
         foreach ($this->iterationsIntervalCallbacks as $iterationsIntervalCallback) {
-            if (($this->getLoopCount()+1) % $iterationsIntervalCallback['interval'] === 0) {
+            if (($this->getLoopCount() + 1) % $iterationsIntervalCallback['interval'] === 0) {
                 call_user_func($iterationsIntervalCallback['callable'], $input, $output);
             }
         }
@@ -513,16 +507,14 @@ abstract class DaemonCommand extends ContainerAwareCommand
 
     protected function setup(InputInterface $input, OutputInterface $output)
     {
-
     }
 
     protected function tearDown(InputInterface $input, OutputInterface $output)
     {
-
     }
 
     /**
-     * Return the command name
+     * Return the command name.
      *
      * @return string
      */
@@ -532,14 +524,14 @@ abstract class DaemonCommand extends ContainerAwareCommand
     }
 
     /**
-     * Retrieve configured events
+     * Retrieve configured events.
      *
      * @return DaemonCommand
      */
     protected function configureEvents()
     {
         $container = $this->getContainer();
-        $key       = 'm6web_daemon.iterations_events';
+        $key = 'm6web_daemon.iterations_events';
 
         if ($container->hasParameter($key)) {
             $this->iterationsEvents = $container->getParameter($key);
@@ -549,7 +541,7 @@ abstract class DaemonCommand extends ContainerAwareCommand
     }
 
     /**
-     * Dispatch configured events
+     * Dispatch configured events.
      *
      * @return DaemonCommand
      */
@@ -565,7 +557,7 @@ abstract class DaemonCommand extends ContainerAwareCommand
     }
 
     /**
-     * Add daemon options to the command definition
+     * Add daemon options to the command definition.
      */
     private function configureDaemonDefinition()
     {

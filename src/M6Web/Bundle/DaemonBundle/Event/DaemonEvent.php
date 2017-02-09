@@ -6,7 +6,7 @@ use Symfony\Component\EventDispatcher\Event;
 use M6Web\Bundle\DaemonBundle\Command\DaemonCommand;
 
 /**
- * DaemonEvent
+ * DaemonEvent.
  */
 class DaemonEvent extends Event
 {
@@ -32,7 +32,7 @@ class DaemonEvent extends Event
     }
 
     /**
-     * Set the execution time
+     * Set the execution time.
      *
      * @param float
      *
@@ -46,7 +46,7 @@ class DaemonEvent extends Event
     }
 
     /**
-     * Return the execution time
+     * Return the execution time.
      *
      * @return float
      */
@@ -57,7 +57,7 @@ class DaemonEvent extends Event
 
     /**
      * Alias of getExecutionTime for statsd.
-     * Return execution in ms
+     * Return execution in ms.
      *
      * @return float
      */
@@ -67,7 +67,7 @@ class DaemonEvent extends Event
     }
 
     /**
-     * Return the current memory usage
+     * Return the current memory usage.
      *
      * @return number
      */
@@ -77,7 +77,7 @@ class DaemonEvent extends Event
     }
 
     /**
-     * Gets last exception class name
+     * Gets last exception class name.
      *
      * @return string|null
      */
