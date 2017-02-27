@@ -14,7 +14,7 @@
         "symfony/framework-bundle" : "~3.0"
     },
     "require-dev" : {
-        "atoum/atoum" : "master-dev",
+        "atoum/atoum" : "^2.8||^3.0",
         "symfony/yaml": "~3.0"
     },
     "autoload" : {
