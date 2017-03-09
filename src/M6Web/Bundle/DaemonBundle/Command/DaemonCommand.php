@@ -3,6 +3,8 @@
 namespace M6Web\Bundle\DaemonBundle\Command;
 
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
+use Symfony\Component\Console\ConsoleEvents;
+use Symfony\Component\Console\Event\ConsoleExceptionEvent;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -171,6 +173,9 @@ abstract class DaemonCommand extends ContainerAwareCommand
             } catch (\Exception $e) {
                 $this->setLastException($e);
                 $this->dispatchEvent(DaemonEvents::DAEMON_LOOP_EXCEPTION_GENERAL);
+
+                $event = new ConsoleExceptionEvent($this, $input, $output, $e, $e->getCode());
+                $this->dispatcher->dispatch(ConsoleEvents::EXCEPTION, $event);
 
                 if ($this->getShowExceptions()) {
                     $this->getApplication()->renderException($e, $output);
