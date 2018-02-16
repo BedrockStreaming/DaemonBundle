@@ -16,7 +16,7 @@ class DaemonCommand extends test
         $application->add(new $commandClass());
 
         if (is_null($container)) {
-            $container = new \mock\Symfony\Component\DependencyInjection\Container;
+            $container = new \mock\Symfony\Component\DependencyInjection\Container();
         }
 
         $command = $application->find('test:daemontest');
@@ -65,13 +65,15 @@ class DaemonCommand extends test
     public function testRunOnce()
     {
         $eventDispatcher = new \mock\Symfony\Component\EventDispatcher\EventDispatcher();
-        $eventDispatcher->getMockController()->dispatch = function() { return true; };
+        $eventDispatcher->getMockController()->dispatch = function () {
+            return true;
+        };
         $command = $this->getCommand($eventDispatcher);
 
         $this->if($commandTester = new CommandTester($command))
             ->then($commandTester->execute([
                         'command' => $command->getName(),
-                        '--run-once' => true
+                        '--run-once' => true,
                     ]))
             ->mock($eventDispatcher)
                 ->call('dispatch')
@@ -87,25 +89,29 @@ class DaemonCommand extends test
     public function testMaxLoop()
     {
         $eventDispatcher = new \mock\Symfony\Component\EventDispatcher\EventDispatcher();
-        $eventDispatcher->getMockController()->dispatch = function() { return true; };
+        $eventDispatcher->getMockController()->dispatch = function () {
+            return true;
+        };
         $command = $this->getCommand($eventDispatcher);
 
         $this->if($commandTester = new CommandTester($command))
             ->then($commandTester->execute([
                         'command' => $command->getName(),
-                        '--run-max' => 7
+                        '--run-max' => 7,
                     ]))
             ->mock($eventDispatcher)
             ->call('dispatch')
             ->withArguments(DaemonEvents::DAEMON_LOOP_ITERATION)->exactly(7);
 
         $eventDispatcher = new \mock\Symfony\Component\EventDispatcher\EventDispatcher();
-        $eventDispatcher->getMockController()->dispatch = function() { return true; };
+        $eventDispatcher->getMockController()->dispatch = function () {
+            return true;
+        };
         $command = $this->getCommand($eventDispatcher);
         $this->if($commandTester = new CommandTester($command))
             ->then($commandTester->execute([
                         'command' => $command->getName(),
-                        '--run-max' => 1
+                        '--run-max' => 1,
                     ]))
             ->mock($eventDispatcher)
             ->call('dispatch')
@@ -118,7 +124,9 @@ class DaemonCommand extends test
     public function testStopLoopException()
     {
         $eventDispatcher = new \mock\Symfony\Component\EventDispatcher\EventDispatcher();
-        $eventDispatcher->getMockController()->dispatch = function() { return true; };
+        $eventDispatcher->getMockController()->dispatch = function () {
+            return true;
+        };
 
         $command = $this->getCommand($eventDispatcher, null, 'M6Web\Bundle\DaemonBundle\Tests\Units\Command\DaemonCommandConcreteThrowStopException');
 
@@ -126,7 +134,7 @@ class DaemonCommand extends test
             ->if($commandTester = new CommandTester($command))
                 ->then($commandTester->execute([
                             'command' => $command->getName(),
-                            '--shutdown-on-exception' => true
+                            '--shutdown-on-exception' => true,
                         ]))
                 ->mock($eventDispatcher)
                     ->call('dispatch')
@@ -140,7 +148,7 @@ class DaemonCommand extends test
     public function testGetSetMaxMemory()
     {
         $command = $this->getCommand();
-        $memory  = rand(100, 128000000);
+        $memory = rand(100, 128000000);
 
         $command->setMemoryMax($memory);
 
@@ -153,7 +161,9 @@ class DaemonCommand extends test
     public function testMaxMemory()
     {
         $eventDispatcher = new \mock\Symfony\Component\EventDispatcher\EventDispatcher();
-        $eventDispatcher->getMockController()->dispatch = function() { return true; };
+        $eventDispatcher->getMockController()->dispatch = function () {
+            return true;
+        };
 
         $command = $this->getCommand($eventDispatcher, null, 'M6Web\Bundle\DaemonBundle\Tests\Units\Command\DaemonCommandConcreteMaxMemory');
 
@@ -161,7 +171,7 @@ class DaemonCommand extends test
             ->if($commandTester = new CommandTester($command))
                 ->then($commandTester->execute([
                             'command' => $command->getName(),
-                            '--memory-max' => 10000000
+                            '--memory-max' => 10000000,
                         ]))
                 ->mock($eventDispatcher)
                     ->call('dispatch')
@@ -197,8 +207,8 @@ class DaemonCommand extends test
 
     public function testGetSetShutdownOnException()
     {
-        $command  = $this->getCommand();
-        $shutdown = (bool) rand(0 ,1);
+        $command = $this->getCommand();
+        $shutdown = (bool) rand(0, 1);
 
         $command->setShutdownOnException($shutdown);
 
@@ -211,7 +221,7 @@ class DaemonCommand extends test
     public function testGetSetShowExceptions()
     {
         $command = $this->getCommand();
-        $show    = (bool) rand(0 ,1);
+        $show = (bool) rand(0, 1);
 
         $command->setShowExceptions($show);
 
@@ -224,21 +234,22 @@ class DaemonCommand extends test
     public function testCommandException()
     {
         $eventDispatcher = new \mock\Symfony\Component\EventDispatcher\EventDispatcher();
-        $lastEvent       = null;
+        $lastEvent = null;
 
-        $eventDispatcher->getMockController()->dispatch = function($name, $eventObject) use(&$lastEvent) {
+        $eventDispatcher->getMockController()->dispatch = function ($name, $eventObject) use (&$lastEvent) {
             $lastEvent = $eventObject;
+
             return true;
         };
 
-        $command = $this->getCommand($eventDispatcher, null,'M6Web\Bundle\DaemonBundle\Tests\Units\Command\DaemonCommandConcreteThrowException');
+        $command = $this->getCommand($eventDispatcher, null, 'M6Web\Bundle\DaemonBundle\Tests\Units\Command\DaemonCommandConcreteThrowException');
 
         $this
             ->if($commandTester = new CommandTester($command))
                 ->then($commandTester->execute([
                             'command' => $command->getName(),
                             '--shutdown-on-exception' => true,
-                            '--show-exceptions' => true
+                            '--show-exceptions' => true,
                         ]))
                 ->object($command->getLastException())
                     ->isInstanceOf('\Exception')
@@ -247,7 +258,7 @@ class DaemonCommand extends test
                     ->contains('Exception')
                 ->then($commandTester->execute([
                             'command' => $command->getName(),
-                            '--shutdown-on-exception' => true
+                            '--shutdown-on-exception' => true,
                         ]))
                 ->object($command->getLastException())
                     ->isInstanceOf('\Exception')
@@ -268,16 +279,18 @@ class DaemonCommand extends test
     public function testCommandEvents()
     {
         $eventDispatcher = new \mock\Symfony\Component\EventDispatcher\EventDispatcher();
-        $container       = new \mock\Symfony\Component\DependencyInjection\Container;
-        $command         = $this->getCommand($eventDispatcher, $container);
+        $container = new \mock\Symfony\Component\DependencyInjection\Container();
+        $command = $this->getCommand($eventDispatcher, $container);
 
         $eventDispatcher
             ->getMockController()
-            ->dispatch = function() { return true; };
+            ->dispatch = function () {
+                return true;
+            };
 
         $container
             ->getMockController()
-            ->getParameter = function() {
+            ->getParameter = function () {
                 return [
                     ['count' => 10, 'name' => 'event 10'],
                     ['count' => 5,  'name' => 'event 5'],
@@ -286,14 +299,14 @@ class DaemonCommand extends test
 
         $container
             ->getMockController()
-            ->hasParameter = function($id) {
+            ->hasParameter = function ($id) {
                 return true;
             };
 
         $this->if($commandTester = new CommandTester($command))
             ->then($commandTester->execute([
                         'command' => $command->getName(),
-                        '--run-max' => 20
+                        '--run-max' => 20,
                     ]))
             ->mock($eventDispatcher)
                 ->call('dispatch')
@@ -314,7 +327,7 @@ class DaemonCommand extends test
         $this->if($commandTester = new CommandTester($command))
             ->then($commandTester->execute([
                 'command' => $command->getName(),
-                '--run-once' => true
+                '--run-once' => true,
             ]))
             ->variable($command->getEventDispatcher())
                 ->isNull()
@@ -328,7 +341,7 @@ class DaemonCommand extends test
         $this->if($commandTester = new CommandTester($command))
             ->then($commandTester->execute([
                         'command' => $command->getName(),
-                        '--run-max' => 4
+                        '--run-max' => 4,
                     ]))
             ->integer($command->countCall)
                 ->isEqualTo(0);
@@ -338,7 +351,7 @@ class DaemonCommand extends test
         $this->if($commandTester = new CommandTester($command))
             ->then($commandTester->execute([
                         'command' => $command->getName(),
-                        '--run-max' => 19
+                        '--run-max' => 19,
                     ]))
             ->integer($command->countCall)
                 ->isEqualTo(3);
@@ -348,7 +361,7 @@ class DaemonCommand extends test
         $this->if($commandTester = new CommandTester($command))
             ->then($commandTester->execute([
                         'command' => $command->getName(),
-                        '--run-max' => 20
+                        '--run-max' => 20,
                     ]))
             ->integer($command->countCall)
                 ->isEqualTo(4);
@@ -358,7 +371,7 @@ class DaemonCommand extends test
         $this->if($commandTester = new CommandTester($command))
             ->then($commandTester->execute([
                         'command' => $command->getName(),
-                        '--run-max' => 21
+                        '--run-max' => 21,
                     ]))
             ->integer($command->countCall)
                 ->isEqualTo(4);

@@ -8,7 +8,7 @@ use M6Web\Bundle\DaemonBundle\Command\DaemonCommand as Base;
 
 class DaemonCommandConcreteIterationCallback extends Base
 {
-    public $countCall         = 0;
+    public $countCall = 0;
     public $iterationInterval = 5;
 
     protected function configure()
@@ -29,6 +29,6 @@ class DaemonCommandConcreteIterationCallback extends Base
 
     protected function myCallback(InputInterface $input, OutputInterface $output)
     {
-        $this->countCall++;
+        ++$this->countCall;
     }
 }
