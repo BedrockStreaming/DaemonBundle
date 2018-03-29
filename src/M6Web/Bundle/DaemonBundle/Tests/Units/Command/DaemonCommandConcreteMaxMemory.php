@@ -14,7 +14,7 @@ class DaemonCommandConcreteMaxMemory extends Base
     {
         parent::__construct($name);
 
-        $this->setCode(array($this, 'myFooFunction'));
+        $this->setCode([$this, 'myFooFunction']);
     }
 
     protected function configure()
