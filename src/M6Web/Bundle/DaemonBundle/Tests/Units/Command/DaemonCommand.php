@@ -19,6 +19,10 @@ class DaemonCommand extends test
             $container = new \mock\Symfony\Component\DependencyInjection\Container();
         }
 
+        // Add Event Loop to all container.
+        $streamEventloop = new \React\EventLoop\StreamSelectLoop();
+        $container->set('m6_daemon_bundle.event_loop', $streamEventloop);
+
         $command = $application->find('test:daemontest');
         $command->setContainer($container);
 
