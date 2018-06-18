@@ -2,3 +2,4 @@ services:
     m6_daemon_bundle.event_loop:
         class: 'React\EventLoop\LoopInterface'
         factory: ['React\EventLoop\Factory', 'create']
+        public: true
