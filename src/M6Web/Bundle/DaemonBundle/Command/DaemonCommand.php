@@ -5,7 +5,6 @@ namespace M6Web\Bundle\DaemonBundle\Command;
 use M6Web\Bundle\DaemonBundle\DaemonEvents;
 use M6Web\Bundle\DaemonBundle\Event\DaemonEvent;
 use React\EventLoop\LoopInterface;
-use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -16,7 +15,7 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
  * Class DaemonCommand
  * Abstract class for build daemon commands.
  */
-abstract class DaemonCommand extends ContainerAwareCommand
+abstract class DaemonCommand extends Command
 {
     /**
      * Tells if shutdown is requested.
