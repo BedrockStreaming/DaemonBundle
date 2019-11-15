@@ -23,7 +23,7 @@ And you can launch coke
 
 ## Testing
 
-This bundle is tested with [atoum](https://github.com/atoum/atoum).
+This bundle is tested with [phpunit](https://github.com/sebastianbergmann/phpunit).
 
 To launch tests, you need to install dependencies in dev mode
 ```bash
@@ -32,7 +32,7 @@ composer install --dev
 
 And you can now launch tests
 ```bash
-./vendor/bin/atoum
+./vendor/bin/phpunit
 ```
 
 ## Pull-request
