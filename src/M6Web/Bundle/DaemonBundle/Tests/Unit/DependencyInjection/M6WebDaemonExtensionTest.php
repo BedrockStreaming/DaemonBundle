@@ -25,9 +25,9 @@ class M6WebDaemonExtensionTest extends TestCase
         $this->assertArrayHasKey('count', $iterationEvent = $iterationEvents[0]);
         $this->assertArrayHasKey('name', $iterationEvent);
         $this->assertIsInt($iterationEvent['count']);
-        $this->assertEquals(1,  $iterationEvent['count']);
+        $this->assertEquals(1, $iterationEvent['count']);
         $this->assertIsString($iterationEvent['name']);
-        $this->assertEquals('test',  $iterationEvent['name']);
+        $this->assertEquals('test', $iterationEvent['name']);
     }
 
     /**

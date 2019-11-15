@@ -52,8 +52,7 @@ class DaemonCommandTest extends TestCase
         string $class = DaemonCommandConcrete::class,
         EventDispatcherInterface $eventDispatcher = null,
         array $iterationEvents = []
-    ): DaemonCommand
-    {
+    ): DaemonCommand {
         /** @var DaemonCommand $command */
         $command = new $class();
 
@@ -91,7 +90,6 @@ class DaemonCommandTest extends TestCase
         $this->assertEquals(3, $command->getLoopCount());
     }
 
-
     public function testShutdownRequest(): void
     {
         // Given
@@ -124,19 +122,19 @@ class DaemonCommandTest extends TestCase
             ->method('dispatch')
             ->withConsecutive(
                 [
-                    $this->isInstanceOf(DaemonStartEvent::class)
+                    $this->isInstanceOf(DaemonStartEvent::class),
                 ],
                 [
-                    $this->isInstanceOf(DaemonLoopBeginEvent::class)
+                    $this->isInstanceOf(DaemonLoopBeginEvent::class),
                 ],
                 [
-                    $this->isInstanceOf(DaemonLoopIterationEvent::class)
+                    $this->isInstanceOf(DaemonLoopIterationEvent::class),
                 ],
                 [
-                    $this->isInstanceOf(DaemonLoopEndEvent::class)
+                    $this->isInstanceOf(DaemonLoopEndEvent::class),
                 ],
                 [
-                    $this->isInstanceOf(DaemonStopEvent::class)
+                    $this->isInstanceOf(DaemonStopEvent::class),
                 ]
             );
 
@@ -255,7 +253,7 @@ class DaemonCommandTest extends TestCase
         $commandTester->execute(
             [
                 //                '--memory-max' => 10000000
-                '--memory-max' => 1
+                '--memory-max' => 1,
             ]
         );
 
@@ -283,7 +281,7 @@ class DaemonCommandTest extends TestCase
     {
         return [
             [SIGINT],
-            [SIGTERM]
+            [SIGTERM],
         ];
     }
 
@@ -294,7 +292,7 @@ class DaemonCommandTest extends TestCase
     {
         // Given
         $command = $this->createDaemonCommand();
-        $shutdown = (bool)random_int(0, 1);
+        $shutdown = (bool) random_int(0, 1);
 
         // When
         $command->setShutdownOnException($shutdown);
@@ -311,7 +309,7 @@ class DaemonCommandTest extends TestCase
     {
         // Given
         $command = $this->createDaemonCommand();
-        $show = (bool)random_int(0, 1);
+        $show = (bool) random_int(0, 1);
 
         // When
         $command->setShowExceptions($show);
@@ -481,19 +479,19 @@ class DaemonCommandTest extends TestCase
         return [
             [
                 'runMax' => 4,
-                'countCall' => 0
+                'countCall' => 0,
             ],
             [
                 'runMax' => 19,
-                'countCall' => 3
+                'countCall' => 3,
             ],
             [
                 'runMax' => 20,
-                'countCall' => 4
+                'countCall' => 4,
             ],
             [
                 'runMax' => 21,
-                'countCall' => 4
+                'countCall' => 4,
             ],
         ];
     }

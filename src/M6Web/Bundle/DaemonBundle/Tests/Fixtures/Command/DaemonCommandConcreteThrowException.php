@@ -2,9 +2,9 @@
 
 namespace M6Web\Bundle\DaemonBundle\Tests\Fixtures\Command;
 
+use M6Web\Bundle\DaemonBundle\Command\DaemonCommand;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
-use M6Web\Bundle\DaemonBundle\Command\DaemonCommand;
 
 class DaemonCommandConcreteThrowException extends DaemonCommand
 {

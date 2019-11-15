@@ -121,8 +121,6 @@ abstract class DaemonCommand extends Command
     /**
      * Define command code callback.
      *
-     * @param callable $callback
-     *
      * @throws \InvalidArgumentException
      *
      * @return $this
@@ -143,12 +141,10 @@ abstract class DaemonCommand extends Command
     }
 
     /**
-     * @param InputInterface $input
-     * @param OutputInterface $output
-     *
      * @return int
      *
      * @see \Symfony\Component\Console\Command\Command::run()
+     *
      * @throws \Exception
      */
     public function run(InputInterface $input, OutputInterface $output)
@@ -160,21 +156,17 @@ abstract class DaemonCommand extends Command
         declare(ticks=1);
 
         // Add the signal handler
-        pcntl_signal(SIGTERM, array($this, 'handleSignal'));
-        pcntl_signal(SIGINT, array($this, 'handleSignal'));
+        pcntl_signal(SIGTERM, [$this, 'handleSignal']);
+        pcntl_signal(SIGINT, [$this, 'handleSignal']);
 
         // And now run the command
         return parent::run($input, $output);
     }
 
     /**
-     * @param InputInterface $input
-     * @param OutputInterface $output
-     *
      * @return int
      *
      * @see Command::run()
-     *
      */
     public function daemon(InputInterface $input, OutputInterface $output)
     {
@@ -220,7 +212,6 @@ abstract class DaemonCommand extends Command
     /**
      * Dispatch a daemon event.
      *
-     * @param string $eventName
      * @return DaemonCommand
      */
     protected function dispatchEvent(string $eventName): self
@@ -251,10 +242,6 @@ abstract class DaemonCommand extends Command
     {
     }
 
-    /**
-     * @param InputInterface $input
-     * @param OutputInterface $output
-     */
     protected function loop(InputInterface $input, OutputInterface $output)
     {
         $this->startTime = microtime(true);
@@ -312,8 +299,6 @@ abstract class DaemonCommand extends Command
 
     /**
      * Execute callbacks after every iteration interval.
-     * @param InputInterface $input
-     * @param OutputInterface $output
      */
     protected function callIterationsIntervalCallbacks(InputInterface $input, OutputInterface $output)
     {
@@ -324,9 +309,6 @@ abstract class DaemonCommand extends Command
         }
     }
 
-    /**
-     * @return int
-     */
     public function getLoopCount(): int
     {
         return $this->loopCount;
@@ -361,8 +343,6 @@ abstract class DaemonCommand extends Command
 
     /**
      * Get showExceptions option value.
-     *
-     * @return bool
      */
     public function getShowExceptions(): bool
     {
@@ -372,7 +352,6 @@ abstract class DaemonCommand extends Command
     /**
      * Set showExceptions option value.
      *
-     * @param bool $show
      * @return $this
      */
     public function setShowExceptions(bool $show): self
@@ -382,9 +361,6 @@ abstract class DaemonCommand extends Command
         return $this;
     }
 
-    /**
-     * @return bool
-     */
     public function getShutdownOnException(): bool
     {
         return $this->shutdownOnException;
@@ -402,9 +378,6 @@ abstract class DaemonCommand extends Command
         return $this;
     }
 
-    /**
-     * @return int
-     */
     public function incrLoopCount(): int
     {
         return $this->loopCount++;
@@ -428,8 +401,6 @@ abstract class DaemonCommand extends Command
 
     /**
      * Return true after the last loop.
-     *
-     * @return bool
      */
     protected function isLastLoop(): bool
     {
@@ -438,7 +409,7 @@ abstract class DaemonCommand extends Command
             $this->requestShutdown();
         }
 
-       // Memory
+        // Memory
         if ($this->memoryMax > 0 && memory_get_peak_usage(true) >= $this->memoryMax) {
             $this->dispatchEvent(DaemonLoopMaxMemoryReachedEvent::class);
             $this->requestShutdown();
@@ -457,6 +428,7 @@ abstract class DaemonCommand extends Command
 
     /**
      * @param int $v value
+     *
      * @return DaemonCommand
      */
     public function setLoopMax(int $v = null): self
@@ -468,8 +440,6 @@ abstract class DaemonCommand extends Command
 
     /**
      * Is shutdown requested.
-     *
-     * @return bool
      */
     public function isShutdownRequested(): bool
     {
@@ -498,8 +468,6 @@ abstract class DaemonCommand extends Command
 
     /**
      * Get memory max option value.
-     *
-     * @return int
      */
     public function getMemoryMax(): int
     {
@@ -509,7 +477,6 @@ abstract class DaemonCommand extends Command
     /**
      * Define memory max option value.
      *
-     * @param int $memory
      * @return $this
      */
     public function setMemoryMax(int $memory): self
@@ -521,8 +488,6 @@ abstract class DaemonCommand extends Command
 
     /**
      * Return the last exception.
-     *
-     * @return \Exception|null
      */
     public function getLastException(): ?\Exception
     {
@@ -531,8 +496,6 @@ abstract class DaemonCommand extends Command
 
     /**
      * Set the last exception.
-     *
-     * @param \Exception $e
      *
      * @return \M6Web\Bundle\DaemonBundle\Command\DaemonCommand
      */
@@ -547,7 +510,6 @@ abstract class DaemonCommand extends Command
      * Add your own callback after every iteration interval.
      *
      * @param int $iterationsInterval
-     * @param callable $onIterationsInterval
      */
     public function addIterationsIntervalCallback($iterationsInterval, callable $onIterationsInterval)
     {
@@ -555,13 +517,11 @@ abstract class DaemonCommand extends Command
             throw new \InvalidArgumentException('Iteration interval must be a positive integer');
         }
 
-        $this->iterationsIntervalCallbacks[] = ['interval' => $iterationsInterval, 'callable' => $onIterationsInterval,];
+        $this->iterationsIntervalCallbacks[] = ['interval' => $iterationsInterval, 'callable' => $onIterationsInterval];
     }
 
     /**
      * Return the command name.
-     *
-     * @return string
      */
     public function __toString(): string
     {
@@ -570,7 +530,6 @@ abstract class DaemonCommand extends Command
 
     /**
      * Set the sleeping time (used between two loops).
-     * @param int $µseconds
      */
     protected function setNextIterationSleepingTime(int $µseconds): void
     {

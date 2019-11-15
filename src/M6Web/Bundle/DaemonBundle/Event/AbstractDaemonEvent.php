@@ -2,10 +2,10 @@
 
 namespace M6Web\Bundle\DaemonBundle\Event;
 
-use Symfony\Contracts\EventDispatcher\Event;
 use M6Web\Bundle\DaemonBundle\Command\DaemonCommand;
+use Symfony\Contracts\EventDispatcher\Event;
 
-Abstract class AbstractDaemonEvent extends Event
+abstract class AbstractDaemonEvent extends Event
 {
     /** @var DaemonCommand */
     protected $command;
@@ -13,9 +13,6 @@ Abstract class AbstractDaemonEvent extends Event
     /** @var float */
     protected $executionTime;
 
-    /**
-     * @param DaemonCommand $command
-     */
     public function __construct(DaemonCommand $command)
     {
         $this->command = $command;
