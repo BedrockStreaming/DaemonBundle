@@ -8,4 +8,4 @@ before_script:
   - php composer.phar install
 
 script:
-  - vendor/bin/phpunit src/M6Web/Bundle/DaemonBundle/Tests/
+  - vendor/bin/phpunit tests/

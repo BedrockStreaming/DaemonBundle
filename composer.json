@@ -22,7 +22,10 @@
         "phpunit/phpunit": "^8.4"
     },
     "autoload" : {
-        "psr-0" : { "" : "src/"}
+        "psr-4" : {
+            "M6Web\\Bundle\\DaemonBundle\\" : "src/",
+            "M6Web\\Bundle\\DaemonBundle\\Tests\\": "tests/"
+        }
     },
     "conflict": {
         "symfony/event-dispatcher": "<4.3"

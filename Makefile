@@ -7,3 +7,7 @@ cs-fix:
 
 cs-ci:
 	./vendor/bin/php-cs-fixer fix --dry-run --using-cache=no --verbose
+
+# PHPUnit
+test:
+	./vendor/bin/phpunit tests/
