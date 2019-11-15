@@ -2,113 +2,92 @@
 
 namespace M6Web\Bundle\DaemonBundle\Command;
 
-use M6Web\Bundle\DaemonBundle\DaemonEvents;
-use M6Web\Bundle\DaemonBundle\Event\DaemonEvent;
+use M6Web\Bundle\DaemonBundle\Event\DaemonLoopBeginEvent;
+use M6Web\Bundle\DaemonBundle\Event\DaemonLoopEndEvent;
+use M6Web\Bundle\DaemonBundle\Event\DaemonLoopExceptionGeneralEvent;
+use M6Web\Bundle\DaemonBundle\Event\DaemonLoopExceptionStopEvent;
+use M6Web\Bundle\DaemonBundle\Event\DaemonLoopIterationEvent;
+use M6Web\Bundle\DaemonBundle\Event\DaemonLoopMaxMemoryReachedEvent;
+use M6Web\Bundle\DaemonBundle\Event\DaemonStartEvent;
+use M6Web\Bundle\DaemonBundle\Event\DaemonStopEvent;
+use Psr\EventDispatcher\EventDispatcherInterface;
 use React\EventLoop\LoopInterface;
-use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**
  * Class DaemonCommand
  * Abstract class for build daemon commands.
  */
-abstract class DaemonCommand extends ContainerAwareCommand
+abstract class DaemonCommand extends Command
 {
-    /**
-     * Tells if shutdown is requested.
-     *
-     * @var bool
-     */
+    /** @var bool tells if shutdown is requested */
     protected $shutdownRequested = false;
 
-    /**
-     * Alows the concrete command to
-     * setup an exit code.
-     *
-     * @var int
-     */
+    /** @var int allows the concrete command to setup an exit code */
     protected $returnCode = 0;
 
-    /**
-     * Loop count.
-     *
-     * @var int
-     */
+    /** @var int loop count */
     protected $loopCount = 0;
 
-    /**
-     * Store max loop option value.
-     *
-     * @var int
-     */
-    protected $loopMax = null;
+    /** @var int store max loop option value */
+    protected $loopMax;
 
-    /**
-     * Store max memory option value.
-     *
-     * @var int
-     */
+    /** @var int store max memory option value */
     protected $memoryMax = 0;
 
-    /**
-     * Store shutdown on exception option value.
-     *
-     * @var bool
-     */
+    /** @var bool store shutdown on exception option value */
     protected $shutdownOnException;
 
-    /**
-     * Display or not exception on command output.
-     *
-     * @var bool
-     */
+    /** @var bool display or not exception on command output */
     protected $showExceptions;
 
-    /**
-     * @var EventDispatcherInterface
-     */
-    protected $dispatcher = null;
+    /** @var ?EventDispatcherInterface */
+    protected $dispatcher;
 
-    /**
-     * @var LoopInterface
-     */
+    /** @var LoopInterface */
     protected $loop;
 
-    /**
-     * @var callable
-     */
+    /** @var callable */
     protected $loopCallback;
 
-    /**
-     * @var \Exception
-     */
-    protected $lastException = null;
+    /** @var \Exception */
+    protected $lastException;
 
-    /**
-     * @var float
-     */
-    protected $startTime = null;
+    /** @var float */
+    protected $startTime;
 
-    /**
-     * In seconds
-     *
-     * @var float
-     */
+    /** @var float time in seconds */
     protected $nextIterationSleepingTime = 0.0;
 
-    /**
-     * @var array
-     */
+    /** @var array */
     protected $iterationsEvents = [];
 
-    /**
-     * @var array
-     */
+    /** @var array */
     protected $iterationsIntervalCallbacks = [];
+
+    public function setEventDispatcher(EventDispatcherInterface $dispatcher = null): DaemonCommand
+    {
+        $this->dispatcher = $dispatcher;
+
+        return $this;
+    }
+
+    public function setLoop(LoopInterface $loop): DaemonCommand
+    {
+        $this->loop = $loop;
+
+        return $this;
+    }
+
+    public function setIterationsEvents(array $iterationsEvents): DaemonCommand
+    {
+        $this->iterationsEvents = $iterationsEvents;
+
+        return $this;
+    }
 
     /**
      * {@inheritdoc}
@@ -199,18 +178,6 @@ abstract class DaemonCommand extends ContainerAwareCommand
      */
     public function daemon(InputInterface $input, OutputInterface $output)
     {
-        // Init services
-        $container = $this->getContainer();
-
-        if (is_null($this->dispatcher) && $container->has('event_dispatcher')) {
-            $this->dispatcher = $this->getContainer()->get('event_dispatcher');
-        }
-
-        $this->loop = $container->get('m6_daemon_bundle.event_loop');
-
-        // Last configuration
-        $this->configureEvents();
-
         // Options
         $this->setShutdownOnException($input->hasOption('shutdown-on-exception') ? $input->getOption('shutdown-on-exception') : false);
         $this->setMemoryMax($input->hasOption('memory-max') ? $input->getOption('memory-max') : -1);
@@ -225,13 +192,13 @@ abstract class DaemonCommand extends ContainerAwareCommand
         }
 
         // Ok starting...
-        $this->dispatchEvent(DaemonEvents::DAEMON_START);
+        $this->dispatchEvent(DaemonStartEvent::class);
 
         // Setup
         $this->setup($input, $output);
 
         // General loop
-        $this->dispatchEvent(DaemonEvents::DAEMON_LOOP_BEGIN);
+        $this->dispatchEvent(DaemonLoopBeginEvent::class);
 
         // First tick
         $this->loop->futureTick(function () use ($input, $output) {
@@ -241,30 +208,13 @@ abstract class DaemonCommand extends ContainerAwareCommand
         // Go !
         $this->loop->run();
 
-        $this->dispatchEvent(DaemonEvents::DAEMON_LOOP_END);
+        $this->dispatchEvent(DaemonLoopEndEvent::class);
 
         // Prepare for shutdown
         $this->tearDown($input, $output);
-        $this->dispatchEvent(DaemonEvents::DAEMON_STOP);
+        $this->dispatchEvent(DaemonStopEvent::class);
 
         return $this->returnCode;
-    }
-
-    /**
-     * Retrieve configured events.
-     *
-     * @return DaemonCommand
-     */
-    protected function configureEvents(): self
-    {
-        $container = $this->getContainer();
-        $key = 'm6web_daemon.iterations_events';
-
-        if ($container->hasParameter($key)) {
-            $this->iterationsEvents = $container->getParameter($key);
-        }
-
-        return $this;
     }
 
     /**
@@ -275,14 +225,13 @@ abstract class DaemonCommand extends ContainerAwareCommand
      */
     protected function dispatchEvent(string $eventName): self
     {
-        $dispatcher = $this->getEventDispatcher();
-        if (!is_null($dispatcher)) {
-            $time = !is_null($this->startTime) ? microtime(true) - $this->startTime : 0;
+        if ($this->dispatcher !== null) {
+            $time = $this->startTime !== null ? microtime(true) - $this->startTime : 0;
 
-            $event = new DaemonEvent($this);
+            $event = new $eventName($this);
             $event->setExecutionTime($time);
 
-            $dispatcher->dispatch($eventName, $event);
+            $this->dispatcher->dispatch($event);
         }
 
         return $this;
@@ -318,13 +267,13 @@ abstract class DaemonCommand extends ContainerAwareCommand
             $this->callIterationsIntervalCallbacks($input, $output);
         } catch (StopLoopException $e) {
             $this->setLastException($e);
-            $this->dispatchEvent(DaemonEvents::DAEMON_LOOP_EXCEPTION_STOP);
+            $this->dispatchEvent(DaemonLoopExceptionStopEvent::class);
 
             $this->returnCode = $e->getCode();
             $this->requestShutdown();
         } catch (\Exception $e) {
             $this->setLastException($e);
-            $this->dispatchEvent(DaemonEvents::DAEMON_LOOP_EXCEPTION_GENERAL);
+            $this->dispatchEvent(DaemonLoopExceptionGeneralEvent::class);
 
             if ($this->getShowExceptions()) {
                 $this->getApplication()->renderException($e, $output);
@@ -337,7 +286,7 @@ abstract class DaemonCommand extends ContainerAwareCommand
         }
 
         $this->incrLoopCount();
-        $this->dispatchEvent(DaemonEvents::DAEMON_LOOP_ITERATION);
+        $this->dispatchEvent(DaemonLoopIterationEvent::class);
         $this->dispatchConfigurationEvents();
 
         // Last loop, no more action needed.
@@ -491,7 +440,7 @@ abstract class DaemonCommand extends ContainerAwareCommand
 
        // Memory
         if ($this->memoryMax > 0 && memory_get_peak_usage(true) >= $this->memoryMax) {
-            $this->dispatchEvent(DaemonEvents::DAEMON_LOOP_MAX_MEMORY_REACHED);
+            $this->dispatchEvent(DaemonLoopMaxMemoryReachedEvent::class);
             $this->requestShutdown();
         }
 
@@ -566,18 +515,6 @@ abstract class DaemonCommand extends ContainerAwareCommand
     public function setMemoryMax(int $memory): self
     {
         $this->memoryMax = $memory;
-
-        return $this;
-    }
-
-    /**
-     *
-     * @param EventDispatcherInterface|null $dispatcher
-     * @return DaemonCommand
-     */
-    public function setEventDispatcher(EventDispatcherInterface $dispatcher = null): self
-    {
-        $this->dispatcher = $dispatcher;
 
         return $this;
     }

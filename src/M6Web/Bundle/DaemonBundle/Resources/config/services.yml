@@ -3,3 +3,10 @@ services:
         class: 'React\EventLoop\LoopInterface'
         factory: ['React\EventLoop\Factory', 'create']
         public: true
+
+    M6Web\Bundle\DaemonBundle\Command\DaemonCommand:
+        abstract: true
+        calls:
+            - ['setEventDispatcher', ['@Psr\EventDispatcher\EventDispatcherInterface']]
+            - ['setLoop', ['@m6_daemon_bundle.event_loop']]
+            - ['setIterationsEvents', ['%m6web_daemon.iterations_events%']]

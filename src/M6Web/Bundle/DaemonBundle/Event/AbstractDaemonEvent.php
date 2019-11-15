@@ -2,18 +2,16 @@
 
 namespace M6Web\Bundle\DaemonBundle\Event;
 
-use Symfony\Component\EventDispatcher\Event;
+use Symfony\Contracts\EventDispatcher\Event;
 use M6Web\Bundle\DaemonBundle\Command\DaemonCommand;
 
-/**
- * DaemonEvent.
- */
-class DaemonEvent extends Event
+Abstract class AbstractDaemonEvent extends Event
 {
-    /**
-     * @var DaemonCommand
-     */
+    /** @var DaemonCommand */
     protected $command;
+
+    /** @var float */
+    protected $executionTime;
 
     /**
      * @param DaemonCommand $command
@@ -23,34 +21,25 @@ class DaemonEvent extends Event
         $this->command = $command;
     }
 
-    /**
-     * @return DaemonCommand
-     */
-    public function getCommand()
+    public function getCommand(): DaemonCommand
     {
         return $this->command;
     }
 
     /**
      * Set the execution time.
-     *
-     * @param float
-     *
-     * @return DaemonEvent
      */
-    public function setExecutionTime($v)
+    public function setExecutionTime(float $executionTime): AbstractDaemonEvent
     {
-        $this->executionTime = $v;
+        $this->executionTime = $executionTime;
 
         return $this;
     }
 
     /**
      * Return the execution time.
-     *
-     * @return float
      */
-    public function getExecutionTime()
+    public function getExecutionTime(): float
     {
         return $this->executionTime;
     }
@@ -58,35 +47,29 @@ class DaemonEvent extends Event
     /**
      * Alias of getExecutionTime for statsd.
      * Return execution in ms.
-     *
-     * @return float
      */
-    public function getTiming()
+    public function getTiming(): float
     {
         return $this->getExecutionTime() * 1000;
     }
 
     /**
      * Return the current memory usage.
-     *
-     * @return number
      */
-    public function getMemory()
+    public function getMemory(): int
     {
         return memory_get_usage();
     }
 
     /**
-     * Gets last exception class name.
-     *
-     * @return string|null
+     * Get last exception class name.
      */
-    public function getCommandLastExceptionClassName()
+    public function getCommandLastExceptionClassName(): ?string
     {
         $exception = $this->command->getLastException();
 
-        if (!is_null($exception)) {
-            return get_class($exception);
+        if ($exception !== null) {
+            return \get_class($exception);
         }
 
         return null;
