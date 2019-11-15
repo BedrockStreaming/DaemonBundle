@@ -1,5 +1,0 @@
-m6_web_daemon:
-    iterations_events:
-      -
-        count: ~
-        name: test
