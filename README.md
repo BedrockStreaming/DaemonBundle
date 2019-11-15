@@ -43,7 +43,7 @@ Note:
      
 ## Configuration  
   
-You can optionally define events which are triggered each X iterations :  
+You can optionally define events which are triggered each X iterations:  
   
 ```yaml
 m6_web_daemon:  
@@ -69,10 +69,10 @@ class EachFiveEvent extends AbstractDaemonEvent
 }
 ```
 
-This bundle use the PSR-14 implementation for event dispatcher so you need to refer the symfony event dispatcher in your `config/services.yaml` like this:
+This bundle use the PSR-14 implementation for event dispatcher so you need to register the symfony event dispatcher in your `config/services.yaml` like this:
 ```yaml
 # config/services.yaml
-seervices:
+services:
     # ... others declarations
 
     Psr\EventDispatcher\EventDispatcherInterface: "@event_dispatcher"
