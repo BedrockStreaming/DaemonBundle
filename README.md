@@ -23,17 +23,6 @@ Via composer :
 composer require m6web/daemon-bundle
 ```
   
-Then enable the bundle in your `config/bundles.php`:  
-  
-```php
-<?php
-  
-return [  
-# ... Other bundles declarations
-M6Web\Bundle\DaemonBundle\M6WebDaemonBundle::class => ['all' => true],
-];
-```  
-  
 Note:   
 - If you are using a symfony version `>= 4.3` use the lastest version
 - For symfony versions between `2.3` and `3.0`, you can use `m6web/daemon-bundle:^1.4`
@@ -80,13 +69,14 @@ services:
 
 ## Usage
 
-This command use the [event-loop component](https://github.com/reactphp/event-loop#usage) which [ReactPHP](https://reactphp.org) uses to run loops and other asynchronous tasks.
+This command uses the [event-loop component](https://github.com/reactphp/event-loop#usage) which [ReactPHP](https://reactphp.org) is used to run loops and other asynchronous tasks.
 
 ```php
 <?php
 
-use M6Web\Bundle\DaemonBundle\Command\DaemonCommand;
+namespace App\Command;
 
+use M6Web\Bundle\DaemonBundle\Command\DaemonCommand;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
@@ -95,11 +85,11 @@ class DaemonizedCommand extends DaemonCommand
     protected function configure()
     {
         $this
-            ->setName('daemon:command')
+            ->setName('daemonized:command')
             ->setDescription('My daemonized command');
     }
 
-    protected function setup(InputInterface $input, OutputInterface $output)
+    protected function setup(InputInterface $input, OutputInterface $output): void
     {
         // Set up your daemon here
 
@@ -120,7 +110,7 @@ class DaemonizedCommand extends DaemonCommand
     /**
      * Execute is called at every loop
      */
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): void
     {
         $output->writeln("Iteration");
         
@@ -133,7 +123,7 @@ class DaemonizedCommand extends DaemonCommand
     /**
      * executeEveryTenLoops is called every 10 loops
      */
-    protected function executeEveryTenLoops(InputInterface $input, OutputInterface $output)
+    protected function executeEveryTenLoops(InputInterface $input, OutputInterface $output): void
     {
         $output->writeln("Iteration " . $this->getLoopCount());
     }
@@ -147,7 +137,7 @@ You also need to declare your command under the services:
 services:
     # ... others declarations
 
-    App\Command\AcmeCommand:
+    App\Command\DaemonizedCommand:
         parent: M6Web\Bundle\DaemonBundle\Command\DaemonCommand
         tags:
             - console.command

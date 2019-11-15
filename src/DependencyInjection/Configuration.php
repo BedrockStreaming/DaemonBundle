@@ -15,10 +15,10 @@ class Configuration implements ConfigurationInterface
      */
     public function getConfigTreeBuilder()
     {
-        $treeBuilder = new TreeBuilder();
-        $rootNode = $treeBuilder->root('m6_web_daemon');
+        $treeBuilder = new TreeBuilder('m6_web_daemon');
 
-        $rootNode
+        $treeBuilder
+            ->getRootNode()
             ->children()
             ->arrayNode('iterations_events')
                 ->prototype('array')

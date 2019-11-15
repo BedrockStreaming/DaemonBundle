@@ -65,7 +65,7 @@ abstract class AbstractDaemonEvent extends Event
     {
         $exception = $this->command->getLastException();
 
-        if ($exception !== null) {
+        if (null !== $exception) {
             return \get_class($exception);
         }
 

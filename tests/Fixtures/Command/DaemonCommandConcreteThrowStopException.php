@@ -16,7 +16,7 @@ class DaemonCommandConcreteThrowStopException extends DaemonCommand
     public const EXCEPTION_MESSAGE = 'Stop loop exception';
 
     /** @var int */
-    public static $count = 0;
+    private $count = 0;
 
     protected function configure(): void
     {
@@ -30,9 +30,7 @@ class DaemonCommandConcreteThrowStopException extends DaemonCommand
      */
     protected function execute(InputInterface $input, OutputInterface $output): void
     {
-        static::$count++;
-
-        if (static::$count >= static::MAX_ITERATION) {
+        if (++$this->count >= static::MAX_ITERATION) {
             throw new StopLoopException(static::EXCEPTION_MESSAGE);
         }
     }
