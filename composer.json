@@ -2,31 +2,38 @@
     "name" : "m6web/daemon-bundle",
     "type" : "symfony-bundle",
     "description" : "bundle sf easing creating daemon commands",
-    "authors" : [{
+    "authors" : [
+        {
             "name" : "Olivier Mansour",
             "email" : "olivier.mansour@m6.fr"
         }
     ],
     "require" : {
-        "php" : ">=7.1",
+        "php" : ">=7.2",
         "ext-pcntl" : "*",
-        "symfony/console" : "~3.0 || ~4.0",
-        "symfony/framework-bundle" : "~3.0 || ~4.0",
-        "symfony/yaml": "~3.0 || ~4.0",
+        "psr/event-dispatcher": "^1.0",
+        "symfony/console" : "~4.3",
+        "symfony/framework-bundle" : "~4.3",
+        "symfony/yaml": "~4.3",
         "react/event-loop": "@stable"
     },
     "require-dev" : {
-        "atoum/atoum" : "^2.8||^3.0"
+        "sensiolabs/security-checker": "^5.0",
+        "phpunit/phpunit": "^8.4"
     },
     "autoload" : {
-        "psr-0" : {
-            "" : "src/"
+        "psr-4" : {
+            "M6Web\\Bundle\\DaemonBundle\\" : "src/",
+            "M6Web\\Bundle\\DaemonBundle\\Tests\\": "tests/"
         }
+    },
+    "conflict": {
+        "symfony/event-dispatcher": "<4.3"
     },
     "extra": {
         "branch-alias": {
             "dev-master": "2.0.x-dev"
         }
     },
-    "minimum-stability" : "dev"
+    "minimum-stability": "dev"
 }

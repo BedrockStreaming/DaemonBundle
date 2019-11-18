@@ -1,68 +1,95 @@
-# DaemonBundle [![Build Status](https://travis-ci.org/M6Web/DaemonBundle.svg?branch=master)](https://travis-ci.org/M6Web/DaemonBundle)
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
 
-Allows you to create daemonized commands with the [React event-loop component](https://github.com/reactphp/event-loop).
+- [Installation](#installation)
+- [Configuration](#configuration)
+- [Usage](#usage)
+- [Run command](#run-command)
+- [Command events](#command-events)
 
-## Installation
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
-Via composer :
+# DaemonBundle [![Build Status](https://travis-ci.org/M6Web/DaemonBundle.svg?branch=master)](https://travis-ci.org/M6Web/DaemonBundle)  
+  
+Allows you to create daemonized commands with the [React event-loop component](https://github.com/reactphp/event-loop).  
 
-```json
-"require": {
-    "m6web/daemon-bundle":"^4.0"
+
+## Installation  
+
+Via composer :  
+  
+```bash
+composer require m6web/daemon-bundle
+```
+  
+Note:   
+- If you are using a symfony version `>= 4.3` use the lastest version
+- For symfony versions between `2.3` and `3.0`, you can use `m6web/daemon-bundle:^1.4`
+- For PHP versions `>=5.5.9` and `<7.0` support, you can use `m6web/daemon-bundle:^3.0`
+
+*For more information about installation of plugin refers the documentation of symfony for your version.*
+     
+## Configuration  
+  
+You can optionally define events which are triggered each X iterations:  
+  
+```yaml
+m6_web_daemon:  
+    iterations_events: 
+        - 
+            count: 10 
+            name: Path\From\Your\Project\Event\EachTenEvent
+        -
+            count: 5 
+            name: Path\From\Your\Project\Event\EachFiveEvent
+```
+
+Your event need to extends the AbstractDaemonEvent like following:
+```php
+<?php
+
+namespace Path\From\Your\Project\Event;
+
+use M6Web\Bundle\DaemonBundle\Event\AbstractDaemonEvent;
+
+class EachFiveEvent extends AbstractDaemonEvent
+{
 }
 ```
 
-then enable the bundle in your kernel:
-
-```php
-<?php
-
-$bundles = [
-    new M6Web\Bundle\DaemonBundle\M6WebDaemonBundle()
-];
-```
-
-Note: 
-   - For Symfony versions ">=2.3 && <3.0" support, you can use `"m6web/daemon-bundle":"^1.4"`.
-   - For PHP versions ">=5.5.9 && <7.0" support, you can use `"m6web/daemon-bundle":"^3.0"`.
-   
-## Configuration
-
-You can optionally define events which are triggered each X iterations :
-
+This bundle use the PSR-14 implementation for event dispatcher so you need to register the symfony event dispatcher in your `config/services.yaml` like this:
 ```yaml
-m6_web_daemon:
-    iterations_events:
-        -
-            count: 10
-            name: "daemon.iteration.each.10"
-        -
-            count: 5
-            name: "daemon.iteration.each.5"
+# config/services.yaml
+services:
+    # ... others declarations
+
+    Psr\EventDispatcher\EventDispatcherInterface: "@event_dispatcher"
 ```
 
-## Write command
+## Usage
 
-This command use the [event-loop component](https://github.com/reactphp/event-loop#usage) which [ReactPHP](https://reactphp.org) uses to run loops and other asynchronous tasks.
+This command uses the [event-loop component](https://github.com/reactphp/event-loop#usage) which [ReactPHP](https://reactphp.org) is used to run loops and other asynchronous tasks.
 
 ```php
 <?php
+
+namespace App\Command;
 
 use M6Web\Bundle\DaemonBundle\Command\DaemonCommand;
-
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
-class MyDaemonizedCommand extends DaemonCommand
+class DaemonizedCommand extends DaemonCommand
 {
     protected function configure()
     {
         $this
-            ->setName('company:my-daemonized-command')
+            ->setName('daemonized:command')
             ->setDescription('My daemonized command');
     }
 
-    protected function setup(InputInterface $input, OutputInterface $output)
+    protected function setup(InputInterface $input, OutputInterface $output): void
     {
         // Set up your daemon here
 
@@ -83,7 +110,7 @@ class MyDaemonizedCommand extends DaemonCommand
     /**
      * Execute is called at every loop
      */
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): void
     {
         $output->writeln("Iteration");
         
@@ -96,16 +123,31 @@ class MyDaemonizedCommand extends DaemonCommand
     /**
      * executeEveryTenLoops is called every 10 loops
      */
-    protected function executeEveryTenLoops(InputInterface $input, OutputInterface $output)
+    protected function executeEveryTenLoops(InputInterface $input, OutputInterface $output): void
     {
         $output->writeln("Iteration " . $this->getLoopCount());
     }
 }
 ```
 
+You also need to declare your command under the services:
+
+```yaml
+# config/services
+services:
+    # ... others declarations
+
+    App\Command\DaemonizedCommand:
+        parent: M6Web\Bundle\DaemonBundle\Command\DaemonCommand
+        tags:
+            - console.command
+```
+
+*For information, you need to declare the `autowire` and `autoconfigure` parameters (to `false`) only if you have defaults parameters for services (under `_default`)*
+
 ## Run command
 
-You can run a daemonized command as any other Symfony command. DaemonCommand parent class provide additional options :
+You can run a daemonized command as any other Symfony command with `bin/console`. DaemonCommand parent class provide additional options :
 
 - `--run-once` - Run the command just once
 - `--run-max` - Run the command x time
