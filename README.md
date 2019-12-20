@@ -10,38 +10,38 @@
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
-# DaemonBundle [![Build Status](https://travis-ci.org/M6Web/DaemonBundle.svg?branch=master)](https://travis-ci.org/M6Web/DaemonBundle)  
-  
-Allows you to create daemonized commands with the [React event-loop component](https://github.com/reactphp/event-loop).  
+# DaemonBundle [![Build Status](https://travis-ci.org/M6Web/DaemonBundle.svg?branch=master)](https://travis-ci.org/M6Web/DaemonBundle)
+
+Allows you to create daemonized commands with the [React event-loop component](https://github.com/reactphp/event-loop).
 
 
-## Installation  
+## Installation
 
-Via composer :  
-  
+Via composer :
+
 ```bash
 composer require m6web/daemon-bundle
 ```
-  
-Note:   
+
+Note:
 - If you are using a symfony version `>= 4.3` use the lastest version
 - For symfony versions between `2.3` and `3.0`, you can use `m6web/daemon-bundle:^1.4`
 - For PHP versions `>=5.5.9` and `<7.0` support, you can use `m6web/daemon-bundle:^3.0`
 
 *For more information about installation of plugin refers the documentation of symfony for your version.*
-     
-## Configuration  
-  
-You can optionally define events which are triggered each X iterations:  
-  
+
+## Configuration
+
+You can optionally define events which are triggered each X iterations:
+
 ```yaml
-m6_web_daemon:  
-    iterations_events: 
-        - 
-            count: 10 
+m6_web_daemon:
+    iterations_events:
+        -
+            count: 10
             name: Path\From\Your\Project\Event\EachTenEvent
         -
-            count: 5 
+            count: 5
             name: Path\From\Your\Project\Event\EachFiveEvent
 ```
 
@@ -95,7 +95,7 @@ class DaemonizedCommand extends DaemonCommand
 
         // Add your own optional callback : called every 10 iterations
         $this->addIterationsIntervalCallback(10, [$this, 'executeEveryTenLoops']);
-        
+
         // You can add your own Periodic Timer,
         // Here this timer will be called every 0.5s
         $daemon = $this;
@@ -110,13 +110,13 @@ class DaemonizedCommand extends DaemonCommand
     /**
      * Execute is called at every loop
      */
-    protected function execute(InputInterface $input, OutputInterface $output): void
+    protected function execute(InputInterface $input, OutputInterface $output)
     {
         $output->writeln("Iteration");
-        
+
         // This method helps to give back the CPU to the react-loop.
         // So you can wait between two iterations if your workers has nothing to do.
-        
+
         $this->setNextIterationSleepingTime(1000000); // Every second
     }
 
