@@ -256,7 +256,7 @@ abstract class DaemonCommand extends Command
             $this->dispatchEvent(DaemonLoopExceptionGeneralEvent::class);
 
             if ($this->getShowExceptions()) {
-                $this->getApplication()->renderException($e, $output);
+                $this->getApplication()->renderThrowable($e, $output);
             }
 
             if ($this->getShutdownOnException()) {
