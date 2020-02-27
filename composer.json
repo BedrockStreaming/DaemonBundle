@@ -13,7 +13,7 @@
         "ext-pcntl" : "*",
         "psr/event-dispatcher": "^1.0",
         "symfony/console" : "~4.3 || ~5.0",
-        "symfony/framework-bundle" : "~4.3|~5.0",
+        "symfony/framework-bundle" : "~4.3 || ~5.0",
         "symfony/yaml": "~4.3|~5.0",
         "react/event-loop": "@stable"
     },
