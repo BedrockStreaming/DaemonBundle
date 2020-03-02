@@ -3,9 +3,14 @@ language: php
 php:
   - 7.2
 
+env:
+  matrix:
+    - PREFER_LOWEST="--prefer-lowest"
+    - PREFER_LOWEST=""
+    
 before_script:
   - wget http://getcomposer.org/composer.phar
-  - php composer.phar install
+  - php composer.phar update --prefer-source $PREFER_LOWEST
 
 script:
   - vendor/bin/phpunit tests/
