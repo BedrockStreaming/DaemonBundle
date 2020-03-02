@@ -28,7 +28,7 @@
         }
     },
     "conflict": {
-        "symfony/event-dispatcher": "<4.3"
+        "symfony/event-dispatcher": "<4.4"
     },
     "extra": {
         "branch-alias": {
