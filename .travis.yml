@@ -2,16 +2,21 @@ language: php
 
 php:
   - 7.2
-  - 7.4
 
 env:
   matrix:
-    - PREFER_LOWEST="--prefer-lowest"
-    - PREFER_LOWEST=""
+    - SYMFONY_VERSION="~4.4"
+    - SYMFONY_VERSION="~5.0"
     
-before_script:
+before_install:
   - wget http://getcomposer.org/composer.phar
-  - php composer.phar update --prefer-source $PREFER_LOWEST
+  - php composer.phar require "symfony/console:${SYMFONY_VERSION}" --no-update
+  - php composer.phar require "symfony/framework-bundle:${SYMFONY_VERSION}" --no-update
+  - php composer.phar require "symfony/yaml:${SYMFONY_VERSION}" --no-update
+  - php composer.phar require "symfony/console:${SYMFONY_VERSION}" --no-update
+
+install:
+  - php composer.phar update --prefer-source --no-interaction
 
 script:
   - vendor/bin/phpunit tests/
