@@ -13,7 +13,6 @@ before_install:
   - php composer.phar require "symfony/console:${SYMFONY_VERSION}" --no-update
   - php composer.phar require "symfony/framework-bundle:${SYMFONY_VERSION}" --no-update
   - php composer.phar require "symfony/yaml:${SYMFONY_VERSION}" --no-update
-  - php composer.phar require "symfony/console:${SYMFONY_VERSION}" --no-update
 
 install:
   - php composer.phar update --prefer-source --no-interaction
