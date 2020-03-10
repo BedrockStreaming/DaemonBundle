@@ -12,13 +12,13 @@
         "php" : ">=7.2",
         "ext-pcntl" : "*",
         "psr/event-dispatcher": "^1.0",
-        "symfony/console" : "~4.3",
-        "symfony/framework-bundle" : "~4.3",
-        "symfony/yaml": "~4.3",
+        "symfony/console" : "~4.4 || ~5.0",
+        "symfony/framework-bundle" : "~4.4 || ~5.0",
+        "symfony/yaml": "~4.4 || ~5.0",
         "react/event-loop": "@stable"
     },
     "require-dev" : {
-        "sensiolabs/security-checker": "^5.0",
+        "sensiolabs/security-checker": "^6.0",
         "phpunit/phpunit": "^8.4"
     },
     "autoload" : {
@@ -28,7 +28,7 @@
         }
     },
     "conflict": {
-        "symfony/event-dispatcher": "<4.3"
+        "symfony/event-dispatcher": "<4.4"
     },
     "extra": {
         "branch-alias": {
