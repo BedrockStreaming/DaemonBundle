@@ -1,0 +1,25 @@
+name: Continuous Integration
+on: [push]
+
+jobs:
+  tests:
+    name: Tests
+    runs-on: ubuntu-20.04
+    strategy:
+      matrix:
+        php-version: [ '7.2', '7.3', '7.4', '8.0', '8.1' ]
+        symfony-version: ['^4.4', '^5.0']
+    steps:
+      - uses: actions/checkout@master
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php-version }}
+          coverage: xdebug2
+      - name: Install symfony version from matrix
+        env:
+          SYMFONY_VERSION: ${{ matrix.symfony-version }}
+        run: composer require symfony/symfony:$SYMFONY_VERSION --no-update
+      - name: Install dependencies
+        run: composer update --prefer-dist --no-interaction
+      - name: Unit tests
+        run: vendor/bin/phpunit tests/
