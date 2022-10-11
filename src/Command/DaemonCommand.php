@@ -123,9 +123,9 @@ abstract class DaemonCommand extends Command
      * Define command code callback.
      *
      * @param callable $callback
-     * @return DaemonCommand
+     * @return $this
      */
-    public function setCode(callable $callback): DaemonCommand
+    public function setCode(callable $callback): static
     {
         $this->loopCallback = $callback;
 
