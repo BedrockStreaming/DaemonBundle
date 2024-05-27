@@ -14,6 +14,7 @@ use M6Web\Bundle\DaemonBundle\Event\DaemonStopEvent;
 use Psr\EventDispatcher\EventDispatcherInterface;
 use React\EventLoop\LoopInterface;
 use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Exception\ExceptionInterface;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -25,49 +26,49 @@ use Symfony\Component\Console\Output\OutputInterface;
 abstract class DaemonCommand extends Command
 {
     /** @var bool tells if shutdown is requested */
-    protected $shutdownRequested = false;
+    protected bool $shutdownRequested = false;
 
     /** @var int allows the concrete command to setup an exit code */
-    protected $returnCode = 0;
+    protected int $returnCode = 0;
 
     /** @var int loop count */
-    protected $loopCount = 0;
+    protected int $loopCount = 0;
 
-    /** @var int store max loop option value */
-    protected $loopMax;
+    /** @var ?int store max loop option value */
+    protected ?int $loopMax = null;
 
     /** @var int store max memory option value */
-    protected $memoryMax = 0;
+    protected int $memoryMax = 0;
 
     /** @var bool store shutdown on exception option value */
-    protected $shutdownOnException;
+    protected bool $shutdownOnException;
 
     /** @var bool display or not exception on command output */
-    protected $showExceptions;
+    protected bool $showExceptions;
 
     /** @var ?EventDispatcherInterface */
-    protected $dispatcher;
+    protected ?EventDispatcherInterface $dispatcher;
 
     /** @var LoopInterface */
-    protected $loop;
+    protected LoopInterface $loop;
 
     /** @var callable */
     protected $loopCallback;
 
     /** @var \Exception */
-    protected $lastException;
+    protected \Exception $lastException;
 
-    /** @var float */
-    protected $startTime;
+    /** @var ?float */
+    protected ?float $startTime = null;
 
     /** @var float time in seconds */
-    protected $nextIterationSleepingTime = 0.0;
+    protected float $nextIterationSleepingTime = 0.0;
 
     /** @var array */
-    protected $iterationsEvents = [];
+    protected array $iterationsEvents = [];
 
     /** @var array */
-    protected $iterationsIntervalCallbacks = [];
+    protected array $iterationsIntervalCallbacks = [];
 
     public function setEventDispatcher(EventDispatcherInterface $dispatcher = null): DaemonCommand
     {
@@ -141,9 +142,8 @@ abstract class DaemonCommand extends Command
     }
 
     /**
-     * @see \Symfony\Component\Console\Command\Command::run()
-     *
-     * @throws \Exception
+     * @throws ExceptionInterface
+     * @see Command::run
      */
     public function run(InputInterface $input, OutputInterface $output): int
     {
@@ -256,7 +256,7 @@ abstract class DaemonCommand extends Command
             $this->dispatchEvent(DaemonLoopExceptionGeneralEvent::class);
 
             if ($this->getShowExceptions()) {
-                $this->getApplication()->renderThrowable($e, $output);
+                $this->getApplication()?->renderThrowable($e, $output);
             }
 
             if ($this->getShutdownOnException()) {
@@ -350,9 +350,6 @@ abstract class DaemonCommand extends Command
         return $this->shutdownOnException;
     }
 
-    /**
-     * @param bool $v value
-     */
     public function setShutdownOnException(bool $shutdownOnException): DaemonCommand
     {
         $this->shutdownOnException = $shutdownOnException;
@@ -474,6 +471,8 @@ abstract class DaemonCommand extends Command
 
     /**
      * Add your own callback after every iteration interval.
+     *
+     * @param int      $iterationsInterval
      * @param callable $onIterationsInterval
      */
     public function addIterationsIntervalCallback(int $iterationsInterval, callable $onIterationsInterval): void

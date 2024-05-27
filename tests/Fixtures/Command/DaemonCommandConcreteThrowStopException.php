@@ -4,6 +4,7 @@ namespace M6Web\Bundle\DaemonBundle\Tests\Fixtures\Command;
 
 use M6Web\Bundle\DaemonBundle\Command\DaemonCommand;
 use M6Web\Bundle\DaemonBundle\Command\StopLoopException;
+use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
@@ -16,7 +17,7 @@ class DaemonCommandConcreteThrowStopException extends DaemonCommand
     public const EXCEPTION_MESSAGE = 'Stop loop exception';
 
     /** @var int */
-    private $count = 0;
+    private int $count = 0;
 
     protected function configure(): void
     {
@@ -28,10 +29,11 @@ class DaemonCommandConcreteThrowStopException extends DaemonCommand
     /**
      * @throws StopLoopException
      */
-    protected function execute(InputInterface $input, OutputInterface $output): void
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         if (++$this->count >= static::MAX_ITERATION) {
             throw new StopLoopException(static::EXCEPTION_MESSAGE);
         }
+        return Command::FAILURE;
     }
 }

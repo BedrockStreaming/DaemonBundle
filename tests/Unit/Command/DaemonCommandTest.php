@@ -1,6 +1,6 @@
 <?php
 
-namespace M6Web\Bundle\DaemonBundle\Tests\Units\Command;
+namespace M6Web\Bundle\DaemonBundle\Tests\Unit\Command;
 
 use Exception;
 use M6Web\Bundle\DaemonBundle\Command\DaemonCommand;
@@ -20,26 +20,23 @@ use M6Web\Bundle\DaemonBundle\Tests\Fixtures\Command\DaemonCommandConcreteThrowE
 use M6Web\Bundle\DaemonBundle\Tests\Fixtures\Command\DaemonCommandConcreteThrowStopException;
 use M6Web\Bundle\DaemonBundle\Tests\Fixtures\Event\EachFiveEvent;
 use M6Web\Bundle\DaemonBundle\Tests\Fixtures\Event\EachTenEvent;
-use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\EventDispatcher\EventDispatcherInterface;
-use React\EventLoop\Factory;
+use React\EventLoop\Loop;
 use React\EventLoop\LoopInterface;
 use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Tester\CommandTester;
 
 class DaemonCommandTest extends TestCase
 {
-    /** @var MockObject|EventDispatcherInterface */
-    protected $eventDispatcher;
+    protected ?EventDispatcherInterface $eventDispatcher;
 
-    /** @var LoopInterface */
-    protected $loop;
+    protected ?LoopInterface $loop;
 
     public function setUp(): void
     {
         $this->eventDispatcher = $this->createMock(EventDispatcherInterface::class);
-        $this->loop = Factory::create();
+        $this->loop = Loop::get();
     }
 
     public function tearDown(): void
@@ -50,7 +47,7 @@ class DaemonCommandTest extends TestCase
 
     private function createDaemonCommand(
         string $class = DaemonCommandConcrete::class,
-        EventDispatcherInterface $eventDispatcher = null,
+        ?EventDispatcherInterface $eventDispatcher = null,
         array $iterationEvents = []
     ): DaemonCommand {
         /** @var DaemonCommand $command */
@@ -97,14 +94,14 @@ class DaemonCommandTest extends TestCase
 
         // With
         $this->assertIsBool($command->isShutdownRequested());
-        $this->assertEquals(false, $command->isShutdownRequested());
+        $this->assertFalse($command->isShutdownRequested());
 
         // When
         $command->requestShutdown();
 
         // Then
         $this->assertIsBool($command->isShutdownRequested());
-        $this->assertEquals(true, $command->isShutdownRequested());
+        $this->assertTrue($command->isShutdownRequested());
     }
 
     /**
@@ -340,7 +337,7 @@ class DaemonCommandTest extends TestCase
         );
 
         // Then
-        $this->assertInstanceOf(\Exception::class, $exception = $command->getLastException());
+        $this->assertInstanceOf(\Exception::class, $command->getLastException());
         $this->assertStringContainsString(DaemonCommandConcreteThrowException::$exceptionMessage, $commandTester->getDisplay());
         $this->assertStringContainsString('Exception', $commandTester->getDisplay());
     }
@@ -374,7 +371,7 @@ class DaemonCommandTest extends TestCase
         );
 
         // Then
-        $this->assertInstanceOf(\Exception::class, $exception = $command->getLastException());
+        $this->assertInstanceOf(\Exception::class, $command->getLastException());
         $this->assertStringNotContainsString(DaemonCommandConcreteThrowException::$exceptionMessage, $commandTester->getDisplay());
         $this->assertStringNotContainsString('Exception', $commandTester->getDisplay());
 
