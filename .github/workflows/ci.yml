@@ -7,8 +7,11 @@ jobs:
     runs-on: ubuntu-20.04
     strategy:
       matrix:
-        php-version: ['8.1']
-        symfony-version: ['^6.1']
+        php-version: ['8.1', '8.2']
+        symfony-version: ['^6.1', '^7.0']
+        exclude:
+          - php-version: '8.1'
+            symfony-version: '^7.0'
     steps:
       - uses: actions/checkout@master
       - uses: shivammathur/setup-php@v2

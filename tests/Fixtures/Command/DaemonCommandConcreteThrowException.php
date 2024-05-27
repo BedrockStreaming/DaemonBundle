@@ -8,7 +8,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class DaemonCommandConcreteThrowException extends DaemonCommand
 {
-    public static $exceptionMessage = null;
+    public static ?string $exceptionMessage = null;
 
     protected function configure(): void
     {
@@ -20,9 +20,9 @@ class DaemonCommandConcreteThrowException extends DaemonCommand
     /**
      * @throws \Exception
      */
-    protected function execute(InputInterface $input, OutputInterface $output): void
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        self::$exceptionMessage = (string) uniqid(mt_rand(), true);
+        self::$exceptionMessage = uniqid(mt_rand(), true);
 
         throw new \Exception(self::$exceptionMessage);
     }

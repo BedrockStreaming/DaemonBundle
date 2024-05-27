@@ -8,10 +8,10 @@ use Symfony\Contracts\EventDispatcher\Event;
 abstract class AbstractDaemonEvent extends Event
 {
     /** @var DaemonCommand */
-    protected $command;
+    protected DaemonCommand $command;
 
     /** @var float */
-    protected $executionTime;
+    protected float $executionTime;
 
     public function __construct(DaemonCommand $command)
     {
