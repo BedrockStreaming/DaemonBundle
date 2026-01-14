@@ -258,29 +258,7 @@ class DaemonCommandTest extends TestCase
         $this->assertArrayHasKey(DaemonLoopMaxMemoryReachedEvent::class, $eventTypes);
     }
 
-    /**
-     * @dataProvider getTestHandleSignalProvider
-     */
-    public function testHandleSignal(int $signal): void
-    {
-        // Given
-        $command = $this->createDaemonCommand();
-        $this->assertFalse($command->isShutdownRequested());
 
-        // When
-        $command->handleSignal($signal);
-
-        // Then
-        $this->assertTrue($command->isShutdownRequested());
-    }
-
-    public function getTestHandleSignalProvider(): array
-    {
-        return [
-            [SIGINT],
-            [SIGTERM],
-        ];
-    }
 
     /**
      * @throws Exception

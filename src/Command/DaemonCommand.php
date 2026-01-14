@@ -123,12 +123,13 @@ abstract class DaemonCommand extends Command
     /**
      * Define command code callback.
      *
-     * @param callable $callback
+     * @param callable $code
+     *
      * @return $this
      */
-    public function setCode(callable $callback): static
+    public function setCode(callable $code): static
     {
-        $this->loopCallback = $callback;
+        $this->loopCallback = $code;
 
         return $this;
     }
@@ -152,10 +153,6 @@ abstract class DaemonCommand extends Command
 
         // Enable ticks for fast signal processing
         declare(ticks=1);
-
-        // Add the signal handler
-        pcntl_signal(SIGTERM, [$this, 'handleSignal']);
-        pcntl_signal(SIGINT, [$this, 'handleSignal']);
 
         // And now run the command
         return parent::run($input, $output);
@@ -417,20 +414,6 @@ abstract class DaemonCommand extends Command
 
     protected function tearDown(InputInterface $input, OutputInterface $output): void
     {
-    }
-
-    /**
-     * Handle proces signals.
-     */
-    public function handleSignal(int $signal): void
-    {
-        switch ($signal) {
-            // Shutdown signals
-            case SIGTERM:
-            case SIGINT:
-                $this->requestShutdown();
-                break;
-        }
     }
 
     /**

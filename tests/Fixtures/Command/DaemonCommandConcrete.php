@@ -20,4 +20,13 @@ class DaemonCommandConcrete extends DaemonCommand
     {
         return Command::SUCCESS;
     }
+
+    /**
+     * Helper method to check if shutdown has been requested (for testing)
+     */
+    public function isShutdownRequested(): bool
+    {
+        return $this->shutdownRequested;
+    }
 }
+

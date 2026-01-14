@@ -4,6 +4,14 @@ services:
         factory: ['React\EventLoop\Factory', 'create']
         public: true
 
+    m6_daemon_bundle.signal_listener:
+        class: 'M6Web\Bundle\DaemonBundle\EventListener\ConsoleCommandListener'
+        arguments:
+            - '@m6_daemon_bundle.event_loop'
+        tags:
+            - { name: 'kernel.event_listener', event: 'console.signal', method: 'onConsoleSignal' }
+        public: true
+
     M6Web\Bundle\DaemonBundle\Command\DaemonCommand:
         abstract: true
         calls:
